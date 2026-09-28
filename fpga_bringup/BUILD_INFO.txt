@@ -1,0 +1,7 @@
+source commit   60d959b9088f0a0597f990bd90ccfa4af91bbc4a
+packed          2026-09-29 07:34 +0800
+compiler        riscv-unknown-elf-gcc (ESWIN GCC compile time:2026-08-02 04:31:04) 14.1.1 20240618
+march           rv64gcv_zfh_zfbfmin_zvfh_zvfbfmin_zvfbfwma_xewmatrix1p0_zicbom_zicbop_zicboz_xdcache
+mabi/cmodel     lp64d / medany
+debug image     BOARD=s2c DEBUG=1 bash scripts/build-board.sh
+release image   BOARD=s2c bash scripts/build-board.sh

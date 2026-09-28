@@ -1,0 +1,9 @@
+# 打包中间产物
+*.zip
+*.7z
+*.tar.gz
+*.rar
+# 板上回传数据不入库
+mailbox.bin
+board_out.bin
+board_out.tensor.bin

@@ -1,0 +1,8 @@
+back-door load addresses (s2c, ame, DEBUG=0)
+  program  board_s2c_ame.bin -> 0x80000000  (3571376 B, image ends 0x00000000803a7f60)
+  magic    32-bit 0x5A5AC3C3 -> 0x87F00080  (a value, not a file)
+  input    512x512 RGB UINT8 frame (786432 B) -> 0xF0000000
+  output   read 786432 B at 0xF0100000
+  mailbox  0x87F00000: status 0xB0000004 done / 0xB00000EE error (code +0x04) / 0xB00000FF trap (+0x48)
+  tensor   read the bf16 graph output tensor at the mailbox +0x38 address, +0x40 bytes
+  order: hold reset; write program, 0 to the status word 0x87F00000, magic, input -> release reset -> poll mailbox status -> read output, output tensor and mailbox
