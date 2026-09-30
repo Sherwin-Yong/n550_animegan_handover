@@ -1,18 +1,18 @@
 # 文件清单（机器校验用 checksums.sha256：sha256sum -c checksums.sha256）
-# source commit 60d959b9088f0a0597f990bd90ccfa4af91bbc4a
+# source commit da51d7f24f8c8de4e63df97ee80e308b852b1574
 
          443  BUILD_INFO.txt
-        9434  README.md
-         652  addresses.txt
-     3571760  debug/board_s2c_ame_debug.bin
-      574907  debug/board_s2c_ame_debug.diss
-     3835264  debug/board_s2c_ame_debug.elf
-        4573  debug/board_s2c_ame_debug.sym
-      786432  input/v3_3.input.bin
-     3571376  release/board_s2c_ame.bin
-      570199  release/board_s2c_ame.diss
-     3830808  release/board_s2c_ame.elf
-        4544  release/board_s2c_ame.sym
+       10615  README.md
+         690  addresses.txt
+     3572024  debug/board_s2c_ame_debug.bin
+      578369  debug/board_s2c_ame_debug.diss
+     3835856  debug/board_s2c_ame_debug.elf
+        4599  debug/board_s2c_ame_debug.sym
+      786432  input/test8.input.bin
+     3571576  release/board_s2c_ame.bin
+      573116  release/board_s2c_ame.diss
+     3835304  release/board_s2c_ame.elf
+        4570  release/board_s2c_ame.sym
         1976  src/BUILD.md
      3546688  src/build/animeganv3_bf16.agp
         2364  src/docs/n550_mem_map.md
@@ -21,9 +21,9 @@
         1254  src/include/animegan/board_log.h
         1517  src/include/animegan/platform.h
         8041  src/include/animegan/runtime.h
-        4013  src/scripts/build-board.sh
+        4093  src/scripts/build-board.sh
          778  src/scripts/env.sh
-        4232  src/src/bsp/board.h
+        4599  src/src/bsp/board.h
         1613  src/src/bsp/board.ld
          318  src/src/bsp/model_blob.S
         6228  src/src/bsp/start.S
@@ -40,4 +40,4 @@
         1738  src/src/platform_posix.c
         4925  src/src/platform_rv64_linux.c
         5667  src/src/runtime.c
-       13697  src/tests/board_backdoor.c
+       14627  src/tests/board_backdoor.c

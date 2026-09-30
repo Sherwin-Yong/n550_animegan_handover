@@ -24,13 +24,14 @@
  * pre  x = u/127.5 - 1 (UINT8 -> dense bf16 graph input),
  * post u = clip((y + 1) * 127.5, 0, 255) truncated (bf16 graph output -> UINT8),
  * with RVV. Stage cycle counts come from mcycle (BOARD_CPU_HZ = 40 MHz on the
- * board, arbitrary on QEMU). Frames, graph input and arena are addressed through
- * the RVV view of the CLP window (board.h) and touched only by RVV and the AMU, so
- * they need no cache maintenance; the scalar-written mailbox is written back after
- * every update (ag_board_mbox_sync). The mailbox also gives the DDR address and
- * size of the bf16 graph output tensor (dense NHWC) so the host can read it back
- * and judge the error on it as well as on the result frame. All text goes to the
- * UART; per-stage and per-node lines only in debug images (BOARD_LOG). */
+ * board, arbitrary on QEMU). Frames, graph input and output tensors and arena are
+ * addressed through the RVV view of the CLP window (board.h) and touched only by RVV
+ * and the AMU, so they need no cache maintenance; the scalar-written mailbox is
+ * written back after every update (ag_board_mbox_sync). The bf16 graph output
+ * tensor (dense NHWC) has its own slot at the fixed BOARD_OUT_TENSOR_ADDR, zeroed
+ * before the run (the mailbox repeats address and size), so the host can read it
+ * back and judge the error on it as well as on the result frame. All text goes to
+ * the UART; per-stage and per-node lines only in debug images (BOARD_LOG). */
 
 #define ST_BOOT 0xB0000001u
 #define ST_RUNNING 0xB0000003u   /* as the reference project; 0xB0000002 unused */
@@ -49,6 +50,8 @@ typedef struct {
 typedef char ag_mailbox_layout_check[(sizeof(ag_mailbox) == 0x1000 && offsetof(ag_mailbox, host_magic) == BOARD_MBOX_MAGIC - BOARD_MBOX_ADDR &&
                                       offsetof(ag_mailbox, mcause) == BOARD_MBOX_TRAP - BOARD_MBOX_ADDR &&
                                       offsetof(ag_mailbox, stage) == BOARD_MBOX_STAGE - BOARD_MBOX_ADDR) ? 1 : -1];
+typedef char ag_out_tensor_slot_check[(BOARD_OUT_TENSOR_ADDR == BOARD_CLP_DDR + BOARD_CLP_OUT_TENSOR && BOARD_OUT_TENSOR_BYTES == 2 * BOARD_FRAME_BYTES &&
+                                       BOARD_OUT_TENSOR_BYTES <= BOARD_CLP_ARENA - BOARD_CLP_OUT_TENSOR) ? 1 : -1];
 
 extern const uint8_t ag_model_blob_start[], ag_model_blob_end[];
 void ag_board_uart_init(void);
@@ -77,7 +80,7 @@ static void **tensor_data;
 static size_t *tensor_size;
 static uint64_t *offsets;
 static uint8_t *arena;
-static uint16_t *input;
+static uint16_t *input, *output;
 static uint32_t graph_in = UINT32_MAX, graph_out = UINT32_MAX;
 
 #define uputs ag_plat_puts
@@ -174,7 +177,8 @@ static void post_process(uint8_t *dst, const uint16_t *src, size_t n) {
 #endif
 }
 
-/* One forward pass over the static arena. Fills cyc_conv / cyc_other. */
+/* One forward pass over the static arena; the graph output goes to its fixed slot
+ * instead of its arena offset. Fills cyc_conv / cyc_other. */
 static int forward(uint64_t *cyc_conv, uint64_t *cyc_other) {
     uint32_t node_id, t;
     *cyc_conv = *cyc_other = 0;
@@ -183,7 +187,8 @@ static int forward(uint64_t *cyc_conv, uint64_t *cyc_other) {
     runtime.scratch = arena + plan.scratch_offset;
     runtime.scratch_size = (size_t)plan.scratch_bytes;
     for (t = 0; t < model.tensor_count; ++t)
-        if (offsets[t] != UINT64_MAX && ag_runtime_bind(&runtime, t, arena + offsets[t], ag_tensor_bytes(model.tensors + t)) != 0) return -9;
+        if (t != graph_out && offsets[t] != UINT64_MAX && ag_runtime_bind(&runtime, t, arena + offsets[t], ag_tensor_bytes(model.tensors + t)) != 0) return -9;
+    if (ag_runtime_bind(&runtime, graph_out, output, BOARD_OUT_TENSOR_BYTES) != 0) return -9;
     for (node_id = 0; node_id < model.node_count; ++node_id) {
         const ag_node_desc *node = model.nodes + node_id;
         uint64_t c0;
@@ -248,11 +253,14 @@ void ag_board_main(void) {
     if (model.tensors[graph_in].type != AG_TYPE_BF16 || model.tensors[graph_out].type != AG_TYPE_BF16) fail(4, "graph io not bf16", 0);
     if (ag_tensor_elements(model.tensors + graph_in) != BOARD_FRAME_BYTES || ag_tensor_elements(model.tensors + graph_out) != BOARD_FRAME_BYTES)
         fail(4, "graph io is not a 512x512 RGB frame", (long)ag_tensor_elements(model.tensors + graph_in));
+    if (ag_tensor_bytes(model.tensors + graph_out) != BOARD_OUT_TENSOR_BYTES)
+        fail(4, "graph output is not the dense bf16 tensor of its fixed slot, bytes", (long)ag_tensor_bytes(model.tensors + graph_out));
     if ((rc = ag_plan_build(&model, BOARD_BACKEND, offsets, &plan)) != 0) fail(5, "plan", rc);
     in_bytes = ag_tensor_bytes(model.tensors + graph_in) + AG_PLAN_TAIL;
-    if (in_bytes > BOARD_CLP_ARENA - BOARD_CLP_GRAPH_IN) fail(3, "graph input does not fit its CLP slot", (long)in_bytes);
+    if (in_bytes > BOARD_CLP_OUT_TENSOR - BOARD_CLP_GRAPH_IN) fail(3, "graph input does not fit its CLP slot", (long)in_bytes);
     if (plan.arena_bytes > BOARD_CLP_BYTES - BOARD_CLP_ARENA) fail(3, "arena does not fit the CLP window", (long)plan.arena_bytes);
     input = CLP(BOARD_CLP_GRAPH_IN);
+    output = CLP(BOARD_CLP_OUT_TENSOR);
     arena = CLP(BOARD_CLP_ARENA);
     mbox->nodes = model.node_count;
     BOARD_LOG(uputs("model nodes="), uint_(model.node_count), uputs(" tensors="), uint_(model.tensor_count),
@@ -260,6 +268,7 @@ void ag_board_main(void) {
               uputs(" scratch="), uint_((long)plan.scratch_bytes), uputs("\n"));
     set_stage(AG_STAGE_ZERO);
     memset(input, 0, in_bytes);           /* RVV stores (libc_min) */
+    memset(output, 0, BOARD_OUT_TENSOR_BYTES);   /* a run that stops early leaves zeros, not the last frame's tensor */
     memset(arena, 0, (size_t)plan.arena_bytes);
     mb_status(ST_RUNNING);
     set_stage(AG_STAGE_PRE);

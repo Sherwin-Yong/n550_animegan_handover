@@ -20,16 +20,16 @@ _start:
     .option norelax
     la      gp, __global_pointer$
     8000000c:	00368197          	auipc	gp,0x368
-    80000010:	8a418193          	addi	gp,gp,-1884 # 803678b0 <__global_pointer$>
+    80000010:	9ac18193          	addi	gp,gp,-1620 # 803679b8 <__global_pointer$>
     .option pop
     la      sp, _stack_top
     80000014:	003a8117          	auipc	sp,0x3a8
-    80000018:	0cc10113          	addi	sp,sp,204 # 803a80e0 <_end>
+    80000018:	1dc10113          	addi	sp,sp,476 # 803a81f0 <_end>
     la      t0, _bss_start
-    8000001c:	78018293          	addi	t0,gp,1920 # 80368030 <g_errno>
+    8000001c:	78018293          	addi	t0,gp,1920 # 80368138 <g_errno>
     la      t1, _bss_end
     80000020:	00368317          	auipc	t1,0x368
-    80000024:	0b830313          	addi	t1,t1,184 # 803680d8 <_bss_end>
+    80000024:	1c830313          	addi	t1,t1,456 # 803681e8 <_bss_end>
 1:  bgeu    t0, t1, 2f
     80000028:	0062f663          	bgeu	t0,t1,80000034 <_start+0x34>
     sd      zero, 0(t0)
@@ -40,7 +40,7 @@ _start:
     80000032:	bfdd                	j	80000028 <_start+0x28>
 2:  la      t0, _itcm_lma         /* ITCM <- .itcm load image */
     80000034:	00367297          	auipc	t0,0x367
-    80000038:	08c28293          	addi	t0,t0,140 # 803670c0 <_itcm_lma>
+    80000038:	19428293          	addi	t0,t0,404 # 803671c8 <_itcm_lma>
     la      t1, _itcm_start
     8000003c:	84000317          	auipc	t1,0x84000
     80000040:	fc430313          	addi	t1,t1,-60 # 4000000 <_itcm_start>
@@ -293,7 +293,7 @@ int ag_model_open(ag_model *model, const void *data, size_t size) {
     if (memcmp(header->magic, ag_magic, sizeof(ag_magic)) != 0) return -2;
     800001bc:	4621                	li	a2,8
     800001be:	00367597          	auipc	a1,0x367
-    800001c2:	eaa58593          	addi	a1,a1,-342 # 80367068 <ag_magic>
+    800001c2:	fb258593          	addi	a1,a1,-78 # 80367170 <ag_magic>
     800001c6:	732020ef          	jal	800028f8 <memcmp>
     800001ca:	892a                	mv	s2,a0
     800001cc:	2a051963          	bnez	a0,8000047e <ag_model_open+0x2f6>
@@ -3041,36 +3041,36 @@ static float exp_f32(float x) {
     float n = (float)(int)(x * inv_ln2 + (x >= 0.0f ? 0.5f : -0.5f));
     800016c2:	f0000753          	fmv.w.x	fa4,zero
     800016c6:	00366797          	auipc	a5,0x366
-    800016ca:	9b27a787          	flw	fa5,-1614(a5) # 80367078 <ag_magic+0x10>
+    800016ca:	aba7a787          	flw	fa5,-1350(a5) # 80367180 <ag_magic+0x10>
     800016ce:	a0a707d3          	fle.s	a5,fa4,fa0
     800016d2:	10f577d3          	fmul.s	fa5,fa0,fa5
     800016d6:	cbd9                	beqz	a5,8000176c <exp_f32+0xaa>
     800016d8:	00366797          	auipc	a5,0x366
-    800016dc:	9987a007          	flw	ft0,-1640(a5) # 80367070 <ag_magic+0x8>
+    800016dc:	aa07a007          	flw	ft0,-1376(a5) # 80367178 <ag_magic+0x8>
     800016e0:	20000753          	fmv.s	fa4,ft0
     800016e4:	00e7f753          	fadd.s	fa4,fa5,fa4
     float f = x - n * ln2, p, r;
     800016e8:	00366797          	auipc	a5,0x366
-    800016ec:	9947a687          	flw	fa3,-1644(a5) # 8036707c <ag_magic+0x14>
+    800016ec:	a9c7a687          	flw	fa3,-1380(a5) # 80367184 <ag_magic+0x14>
     ag_f32_bits s;
     p = 1.0f / 720.0f;
     p = p * f + 1.0f / 120.0f;
     800016f0:	00366797          	auipc	a5,0x366
-    800016f4:	9907a787          	flw	fa5,-1648(a5) # 80367080 <ag_magic+0x18>
+    800016f4:	a987a787          	flw	fa5,-1384(a5) # 80367188 <ag_magic+0x18>
     800016f8:	00366797          	auipc	a5,0x366
-    800016fc:	98c7a187          	flw	ft3,-1652(a5) # 80367084 <ag_magic+0x1c>
+    800016fc:	a947a187          	flw	ft3,-1388(a5) # 8036718c <ag_magic+0x1c>
     p = p * f + 1.0f / 24.0f;
     80001700:	00366797          	auipc	a5,0x366
-    80001704:	9887a107          	flw	ft2,-1656(a5) # 80367088 <ag_magic+0x20>
+    80001704:	a907a107          	flw	ft2,-1392(a5) # 80367190 <ag_magic+0x20>
     float n = (float)(int)(x * inv_ln2 + (x >= 0.0f ? 0.5f : -0.5f));
     80001708:	c00717d3          	fcvt.w.s	a5,fa4,rtz
     p = p * f + 1.0f / 6.0f;
     8000170c:	00366717          	auipc	a4,0x366
-    80001710:	98072087          	flw	ft1,-1664(a4) # 8036708c <ag_magic+0x24>
+    80001710:	a8872087          	flw	ft1,-1400(a4) # 80367194 <ag_magic+0x24>
     p = p * f + 0.5f;
     p = p * f + 1.0f;
     80001714:	00366717          	auipc	a4,0x366
-    80001718:	97c72607          	flw	fa2,-1668(a4) # 80367090 <ag_magic+0x28>
+    80001718:	a8472607          	flw	fa2,-1404(a4) # 80367198 <ag_magic+0x28>
     float n = (float)(int)(x * inv_ln2 + (x >= 0.0f ? 0.5f : -0.5f));
     8000171c:	d007f5d3          	fcvt.s.w	fa1,a5
     float f = x - n * ln2, p, r;
@@ -3110,9 +3110,9 @@ static float exp_f32(float x) {
     8000176a:	8082                	ret
     float n = (float)(int)(x * inv_ln2 + (x >= 0.0f ? 0.5f : -0.5f));
     8000176c:	00366797          	auipc	a5,0x366
-    80001770:	9087a707          	flw	fa4,-1784(a5) # 80367074 <ag_magic+0xc>
+    80001770:	a107a707          	flw	fa4,-1520(a5) # 8036717c <ag_magic+0xc>
     80001774:	00366797          	auipc	a5,0x366
-    80001778:	8fc7a007          	flw	ft0,-1796(a5) # 80367070 <ag_magic+0x8>
+    80001778:	a047a007          	flw	ft0,-1532(a5) # 80367178 <ag_magic+0x8>
     8000177c:	b7a5                	j	800016e4 <exp_f32+0x22>
 
 000000008000177e <act>:
@@ -4196,12 +4196,12 @@ static void channel_stats(const ag_view *v, const uint16_t *p, float *mean, floa
 0000000080002024 <ag_tanhf>:
     if (x > 9.0f) return 1.0f;
     80002024:	00365797          	auipc	a5,0x365
-    80002028:	0747a787          	flw	fa5,116(a5) # 80367098 <ag_magic+0x30>
+    80002028:	17c7a787          	flw	fa5,380(a5) # 803671a0 <ag_magic+0x30>
     8000202c:	a0a797d3          	flt.s	a5,fa5,fa0
     80002030:	e7a1                	bnez	a5,80002078 <ag_tanhf+0x54>
     if (x < -9.0f) return -1.0f;
     80002032:	00365797          	auipc	a5,0x365
-    80002036:	06a7a787          	flw	fa5,106(a5) # 8036709c <ag_magic+0x34>
+    80002036:	1727a787          	flw	fa5,370(a5) # 803671a4 <ag_magic+0x34>
     8000203a:	a0f517d3          	flt.s	a5,fa0,fa5
     8000203e:	eb85                	bnez	a5,8000206e <ag_tanhf+0x4a>
     return 1.0f - 2.0f / (exp_f32(2.0f * x) + 1.0f);
@@ -4212,9 +4212,9 @@ float ag_tanhf(float x) {
     return 1.0f - 2.0f / (exp_f32(2.0f * x) + 1.0f);
     80002048:	e7aff0ef          	jal	800016c2 <exp_f32>
     8000204c:	00365797          	auipc	a5,0x365
-    80002050:	0447a787          	flw	fa5,68(a5) # 80367090 <ag_magic+0x28>
+    80002050:	14c7a787          	flw	fa5,332(a5) # 80367198 <ag_magic+0x28>
     80002054:	00365797          	auipc	a5,0x365
-    80002058:	04c7a707          	flw	fa4,76(a5) # 803670a0 <ag_magic+0x38>
+    80002058:	1547a707          	flw	fa4,340(a5) # 803671a8 <ag_magic+0x38>
 }
     8000205c:	60a2                	ld	ra,8(sp)
     return 1.0f - 2.0f / (exp_f32(2.0f * x) + 1.0f);
@@ -4228,12 +4228,12 @@ float ag_tanhf(float x) {
     8000206c:	8082                	ret
     if (x < -9.0f) return -1.0f;
     8000206e:	00365797          	auipc	a5,0x365
-    80002072:	0267a507          	flw	fa0,38(a5) # 80367094 <ag_magic+0x2c>
+    80002072:	12e7a507          	flw	fa0,302(a5) # 8036719c <ag_magic+0x2c>
 }
     80002076:	8082                	ret
     if (x > 9.0f) return 1.0f;
     80002078:	00365797          	auipc	a5,0x365
-    8000207c:	0187a507          	flw	fa0,24(a5) # 80367090 <ag_magic+0x28>
+    8000207c:	1207a507          	flw	fa0,288(a5) # 80367198 <ag_magic+0x28>
     80002080:	8082                	ret
 
 0000000080002082 <ag_tanh>:
@@ -4311,13 +4311,13 @@ float ag_tanhf(float x) {
     80002118:	adca                	fsd	fs2,216(sp)
     if (x > 9.0f) return 1.0f;
     8000211a:	00365797          	auipc	a5,0x365
-    8000211e:	f7e7a407          	flw	fs0,-130(a5) # 80367098 <ag_magic+0x30>
+    8000211e:	0867a407          	flw	fs0,134(a5) # 803671a0 <ag_magic+0x30>
     if (x < -9.0f) return -1.0f;
     80002122:	00365797          	auipc	a5,0x365
-    80002126:	f7a7a907          	flw	fs2,-134(a5) # 8036709c <ag_magic+0x34>
+    80002126:	0827a907          	flw	fs2,130(a5) # 803671a4 <ag_magic+0x34>
     return 1.0f - 2.0f / (exp_f32(2.0f * x) + 1.0f);
     8000212a:	00365797          	auipc	a5,0x365
-    8000212e:	f667a487          	flw	fs1,-154(a5) # 80367090 <ag_magic+0x28>
+    8000212e:	06e7a487          	flw	fs1,110(a5) # 80367198 <ag_magic+0x28>
                 y[ag_index(&vo, yy, xx, c)] = ag_f32_to_bf16(v);
     80002132:	6daa                	ld	s11,136(sp)
     80002134:	fe4e                	sd	s3,312(sp)
@@ -4328,7 +4328,7 @@ float ag_tanhf(float x) {
     8000213c:	f802                	sd	zero,48(sp)
     return 1.0f - 2.0f / (exp_f32(2.0f * x) + 1.0f);
     8000213e:	00365797          	auipc	a5,0x365
-    80002142:	f627a987          	flw	fs3,-158(a5) # 803670a0 <ag_magic+0x38>
+    80002142:	06a7a987          	flw	fs3,106(a5) # 803671a8 <ag_magic+0x38>
             for (c = 0; c < vo.blocks * AG_BLOCK && (vo.block || c < vo.C); ++c) {
     80002146:	00561a1b          	slliw	s4,a2,0x5
     8000214a:	87e2                	mv	a5,s8
@@ -5314,7 +5314,7 @@ int strcmp(const char *a, const char *b) {
 
 static int g_errno;
 int *__errno(void) { return &g_errno; }
-    8000296e:	78018513          	addi	a0,gp,1920 # 80368030 <g_errno>
+    8000296e:	78018513          	addi	a0,gp,1920 # 80368138 <g_errno>
     80002972:	8082                	ret
 
 0000000080002974 <ag_board_uart_init>:
@@ -5435,7 +5435,7 @@ void ag_plat_put_int(long value) {
     unsigned long v = value < 0 ? (unsigned long)(-value) : (unsigned long)value;
     80002a22:	43f55693          	srai	a3,a0,0x3f
     do { buf[--pos] = (char)('0' + v % 10); v /= 10; } while (v);
-    80002a26:	ccd70713          	addi	a4,a4,-819 # ffffffffcccccccd <_end+0xffffffff4c924bed>
+    80002a26:	ccd70713          	addi	a4,a4,-819 # ffffffffcccccccd <_end+0xffffffff4c924add>
 void ag_plat_put_int(long value) {
     80002a2a:	7179                	addi	sp,sp,-48
     unsigned long v = value < 0 ? (unsigned long)(-value) : (unsigned long)value;
@@ -5541,7 +5541,7 @@ static uintptr_t g_heap_next = BOARD_HEAP_BASE;
 void *ag_plat_alloc(size_t bytes) {
     uintptr_t base = (g_heap_next + BOARD_CACHE_LINE - 1) & ~(uintptr_t)(BOARD_CACHE_LINE - 1);
     80002ae2:	00364697          	auipc	a3,0x364
-    80002ae6:	5ce68693          	addi	a3,a3,1486 # 803670b0 <g_heap_next>
+    80002ae6:	6d668693          	addi	a3,a3,1750 # 803671b8 <g_heap_next>
     80002aea:	629c                	ld	a5,0(a3)
     uint64_t *p, *e;
     if (base + bytes > (uintptr_t)BOARD_HEAP_BASE + BOARD_HEAP_BYTES) return 0;
@@ -5580,7 +5580,7 @@ void ag_plat_free(void *ptr) { (void)ptr; }
 0000000080002b1e <ag_board_heap_used>:
 size_t ag_board_heap_used(void) { return (size_t)(g_heap_next - BOARD_HEAP_BASE); }
     80002b1e:	00364517          	auipc	a0,0x364
-    80002b22:	59253503          	ld	a0,1426(a0) # 803670b0 <g_heap_next>
+    80002b22:	69a53503          	ld	a0,1690(a0) # 803671b8 <g_heap_next>
     80002b26:	57bd                	li	a5,-17
     80002b28:	07ee                	slli	a5,a5,0x1b
     80002b2a:	953e                	add	a0,a0,a5
@@ -5678,7 +5678,7 @@ void ag_plat_ame_release(void) {
     80002b7c:	300027f3          	csrr	a5,mstatus
     ms = (ms & ~(3UL << 29)) | (2UL << 29);
     80002b80:	a0000737          	lui	a4,0xa0000
-    80002b84:	177d                	addi	a4,a4,-1 # ffffffff9fffffff <_end+0xffffffff1fc57f1f>
+    80002b84:	177d                	addi	a4,a4,-1 # ffffffff9fffffff <_end+0xffffffff1fc57e0f>
     80002b86:	8ff9                	and	a5,a5,a4
     80002b88:	40000737          	lui	a4,0x40000
     80002b8c:	8fd9                	or	a5,a5,a4
@@ -6474,7 +6474,7 @@ static void stats_rvv(const ag_view *v, uint16_t *p, float *mean, float *var) {
     80003168:	870a                	mv	a4,sp
     8000316a:	879a                	mv	a5,t1
         for (j = 0; j < AG_BLOCK; ++j) total[j] = sq[j] = 0.0f;
-    8000316c:	0007a023          	sw	zero,0(a5) # fffffffff0000000 <_end+0xffffffff6fc57f20>
+    8000316c:	0007a023          	sw	zero,0(a5) # fffffffff0000000 <_end+0xffffffff6fc57e10>
     80003170:	00072023          	sw	zero,0(a4)
     80003174:	0791                	addi	a5,a5,4
     80003176:	0711                	addi	a4,a4,4
@@ -7708,7 +7708,7 @@ int ag_execute_node_rvv(const ag_model *model, const ag_node_desc *node, const i
         for (r = 0; r < vi.H; ++r) {
     80003c6c:	d6505ce3          	blez	t0,800039e4 <ag_execute_node_rvv+0xf2>
     80003c70:	00363797          	auipc	a5,0x363
-    80003c74:	4007a787          	flw	fa5,1024(a5) # 80367070 <ag_magic+0x8>
+    80003c74:	5087a787          	flw	fa5,1288(a5) # 80367178 <ag_magic+0x8>
     u = __riscv_vadd_vv_u32m1(__riscv_vadd_vx_u32m1(u, 0x7FFFu, vl), lsb, vl);
     80003c78:	6321                	lui	t1,0x8
     80003c7a:	337d                	addiw	t1,t1,-1 # 7fff <__jvt_base$+0x7fff>
@@ -8124,29 +8124,29 @@ static inline int32_t reflect(int32_t i, int32_t n) { if (i < 0) i = -i; if (i >
     80004020:	ee0c90e3          	bnez	s9,80003f00 <ag_execute_node_rvv+0x60e>
     80004024:	ba7d                	j	800039e2 <ag_execute_node_rvv+0xf0>
     80004026:	00363797          	auipc	a5,0x363
-    8000402a:	04a7a287          	flw	ft5,74(a5) # 80367070 <ag_magic+0x8>
+    8000402a:	1527a287          	flw	ft5,338(a5) # 80367178 <ag_magic+0x8>
     8000402e:	00363797          	auipc	a5,0x363
-    80004032:	06e7a607          	flw	fa2,110(a5) # 8036709c <ag_magic+0x34>
+    80004032:	1767a607          	flw	fa2,374(a5) # 803671a4 <ag_magic+0x34>
     80004036:	00363797          	auipc	a5,0x363
-    8000403a:	0627a687          	flw	fa3,98(a5) # 80367098 <ag_magic+0x30>
+    8000403a:	16a7a687          	flw	fa3,362(a5) # 803671a0 <ag_magic+0x30>
     8000403e:	00363797          	auipc	a5,0x363
-    80004042:	0627a707          	flw	fa4,98(a5) # 803670a0 <ag_magic+0x38>
+    80004042:	16a7a707          	flw	fa4,362(a5) # 803671a8 <ag_magic+0x38>
     80004046:	00363797          	auipc	a5,0x363
-    8000404a:	0327a207          	flw	ft4,50(a5) # 80367078 <ag_magic+0x10>
+    8000404a:	13a7a207          	flw	ft4,314(a5) # 80367180 <ag_magic+0x10>
     8000404e:	00363797          	auipc	a5,0x363
-    80004052:	02e7a187          	flw	ft3,46(a5) # 8036707c <ag_magic+0x14>
+    80004052:	1367a187          	flw	ft3,310(a5) # 80367184 <ag_magic+0x14>
     80004056:	00363797          	auipc	a5,0x363
-    8000405a:	02a7a107          	flw	ft2,42(a5) # 80367080 <ag_magic+0x18>
+    8000405a:	1327a107          	flw	ft2,306(a5) # 80367188 <ag_magic+0x18>
     8000405e:	00363797          	auipc	a5,0x363
-    80004062:	0267a087          	flw	ft1,38(a5) # 80367084 <ag_magic+0x1c>
+    80004062:	12e7a087          	flw	ft1,302(a5) # 8036718c <ag_magic+0x1c>
     80004066:	00363797          	auipc	a5,0x363
-    8000406a:	0227a007          	flw	ft0,34(a5) # 80367088 <ag_magic+0x20>
+    8000406a:	12a7a007          	flw	ft0,298(a5) # 80367190 <ag_magic+0x20>
     8000406e:	00363797          	auipc	a5,0x363
-    80004072:	01e7a507          	flw	fa0,30(a5) # 8036708c <ag_magic+0x24>
+    80004072:	1267a507          	flw	fa0,294(a5) # 80367194 <ag_magic+0x24>
     80004076:	00363797          	auipc	a5,0x363
-    8000407a:	01a7a787          	flw	fa5,26(a5) # 80367090 <ag_magic+0x28>
+    8000407a:	1227a787          	flw	fa5,290(a5) # 80367198 <ag_magic+0x28>
     8000407e:	00363797          	auipc	a5,0x363
-    80004082:	0167a587          	flw	fa1,22(a5) # 80367094 <ag_magic+0x2c>
+    80004082:	11e7a587          	flw	fa1,286(a5) # 8036719c <ag_magic+0x2c>
     u = __riscv_vadd_vv_u32m4(__riscv_vadd_vx_u32m4(u, 0x7FFFu, vl), lsb, vl);
     80004086:	6f21                	lui	t5,0x8
     80004088:	3f7d                	addiw	t5,t5,-1 # 7fff <__jvt_base$+0x7fff>
@@ -8526,9 +8526,9 @@ void ag_rvv_u8_to_bf16(uint16_t *dst, const uint8_t *src, size_t n) {   /* x / 1
     while (i < n) {
     8000438c:	c225                	beqz	a2,800043ec <ag_rvv_u8_to_bf16+0x60>
     8000438e:	00363797          	auipc	a5,0x363
-    80004392:	d167a707          	flw	fa4,-746(a5) # 803670a4 <ag_magic+0x3c>
+    80004392:	e1e7a707          	flw	fa4,-482(a5) # 803671ac <ag_magic+0x3c>
     80004396:	00363797          	auipc	a5,0x363
-    8000439a:	cfa7a787          	flw	fa5,-774(a5) # 80367090 <ag_magic+0x28>
+    8000439a:	e027a787          	flw	fa5,-510(a5) # 80367198 <ag_magic+0x28>
     u = __riscv_vadd_vv_u32m4(__riscv_vadd_vx_u32m4(u, 0x7FFFu, vl), lsb, vl);
     8000439e:	6821                	lui	a6,0x8
     800043a0:	387d                	addiw	a6,a6,-1 # 7fff <__jvt_base$+0x7fff>
@@ -8578,11 +8578,11 @@ void ag_rvv_bf16_to_u8(uint8_t *dst, const uint16_t *src, size_t n) {   /* clip(
     800043ee:	ca25                	beqz	a2,8000445e <ag_rvv_bf16_to_u8+0x70>
     800043f0:	00a15073          	csrwi	vxrm,2
     800043f4:	00363797          	auipc	a5,0x363
-    800043f8:	c9c7a607          	flw	fa2,-868(a5) # 80367090 <ag_magic+0x28>
+    800043f8:	da47a607          	flw	fa2,-604(a5) # 80367198 <ag_magic+0x28>
     800043fc:	00363797          	auipc	a5,0x363
-    80004400:	ca87a687          	flw	fa3,-856(a5) # 803670a4 <ag_magic+0x3c>
+    80004400:	db07a687          	flw	fa3,-592(a5) # 803671ac <ag_magic+0x3c>
     80004404:	00363797          	auipc	a5,0x363
-    80004408:	ca47a707          	flw	fa4,-860(a5) # 803670a8 <ag_magic+0x40>
+    80004408:	dac7a707          	flw	fa4,-596(a5) # 803671b0 <ag_magic+0x40>
         size_t vl = __riscv_vsetvl_e16m2(n - i);
         vfloat32m4_t f = __riscv_vfmul_vf_f32m4(__riscv_vfadd_vf_f32m4(load4(src + i, vl), 1.0f, vl), 127.5f, vl);
         vuint32m4_t u = __riscv_vfcvt_rtz_xu_f_v_u32m4(__riscv_vfmin_vf_f32m4(__riscv_vfmax_vf_f32m4(f, 0.0f, vl), 255.0f, vl), vl);
@@ -8676,7 +8676,7 @@ static void set_stage(uint32_t stage) {
     ag_board_stage = stage;
     BOARD_LOG(uputs("stage "), uint_(stage), uputs(" cycle "), uint_((long)ag_board_cycles()), uputs("\n"));
     800044b0:	00363517          	auipc	a0,0x363
-    800044b4:	85850513          	addi	a0,a0,-1960 # 80366d08 <ag_model_blob_end+0x8>
+    800044b4:	91850513          	addi	a0,a0,-1768 # 80366dc8 <ag_model_blob_end+0x8>
 static void set_stage(uint32_t stage) {
     800044b8:	e406                	sd	ra,8(sp)
     ag_board_stage = stage;
@@ -8688,7 +8688,7 @@ static void set_stage(uint32_t stage) {
     800044ca:	9101                	srli	a0,a0,0x20
     800044cc:	d52fe0ef          	jal	80002a1e <ag_plat_put_int>
     800044d0:	00363517          	auipc	a0,0x363
-    800044d4:	84850513          	addi	a0,a0,-1976 # 80366d18 <ag_model_blob_end+0x18>
+    800044d4:	90850513          	addi	a0,a0,-1784 # 80366dd8 <ag_model_blob_end+0x18>
     800044d8:	ce8fe0ef          	jal	800029c0 <ag_plat_puts>
     800044dc:	e6afe0ef          	jal	80002b46 <ag_board_cycles>
     800044e0:	d3efe0ef          	jal	80002a1e <ag_plat_put_int>
@@ -8697,7 +8697,7 @@ static void set_stage(uint32_t stage) {
     800044e6:	60a2                	ld	ra,8(sp)
     BOARD_LOG(uputs("stage "), uint_(stage), uputs(" cycle "), uint_((long)ag_board_cycles()), uputs("\n"));
     800044e8:	00363517          	auipc	a0,0x363
-    800044ec:	83850513          	addi	a0,a0,-1992 # 80366d20 <ag_model_blob_end+0x20>
+    800044ec:	8f850513          	addi	a0,a0,-1800 # 80366de0 <ag_model_blob_end+0x20>
 }
     800044f0:	0141                	addi	sp,sp,16
     BOARD_LOG(uputs("stage "), uint_(stage), uputs(" cycle "), uint_((long)ag_board_cycles()), uputs("\n"));
@@ -8761,8 +8761,8 @@ static void fail(uint32_t code, const char *why, long detail) {
 static void fail(uint32_t code, const char *why, long detail) {
     8000453e:	842a                	mv	s0,a0
     uputs("error "); uint_(code); uputs(": "); uputs(why); uputs(" "); uint_(detail);
-    80004540:	00362517          	auipc	a0,0x362
-    80004544:	7e850513          	addi	a0,a0,2024 # 80366d28 <ag_model_blob_end+0x28>
+    80004540:	00363517          	auipc	a0,0x363
+    80004544:	8a850513          	addi	a0,a0,-1880 # 80366de8 <ag_model_blob_end+0x28>
 static void fail(uint32_t code, const char *why, long detail) {
     80004548:	892e                	mv	s2,a1
     8000454a:	84b2                	mv	s1,a2
@@ -8771,35 +8771,35 @@ static void fail(uint32_t code, const char *why, long detail) {
     80004550:	02041513          	slli	a0,s0,0x20
     80004554:	9101                	srli	a0,a0,0x20
     80004556:	cc8fe0ef          	jal	80002a1e <ag_plat_put_int>
-    8000455a:	00362517          	auipc	a0,0x362
-    8000455e:	7d650513          	addi	a0,a0,2006 # 80366d30 <ag_model_blob_end+0x30>
+    8000455a:	00363517          	auipc	a0,0x363
+    8000455e:	89650513          	addi	a0,a0,-1898 # 80366df0 <ag_model_blob_end+0x30>
     80004562:	c5efe0ef          	jal	800029c0 <ag_plat_puts>
     80004566:	854a                	mv	a0,s2
     80004568:	c58fe0ef          	jal	800029c0 <ag_plat_puts>
-    8000456c:	00362517          	auipc	a0,0x362
-    80004570:	7cc50513          	addi	a0,a0,1996 # 80366d38 <ag_model_blob_end+0x38>
+    8000456c:	00363517          	auipc	a0,0x363
+    80004570:	88c50513          	addi	a0,a0,-1908 # 80366df8 <ag_model_blob_end+0x38>
     80004574:	c4cfe0ef          	jal	800029c0 <ag_plat_puts>
     80004578:	8526                	mv	a0,s1
     8000457a:	ca4fe0ef          	jal	80002a1e <ag_plat_put_int>
     uputs(" (stage "); uint_(ag_board_stage); uputs(" node "); uint_(ag_board_node); uputs(")\n");
-    8000457e:	00362517          	auipc	a0,0x362
-    80004582:	7c250513          	addi	a0,a0,1986 # 80366d40 <ag_model_blob_end+0x40>
+    8000457e:	00363517          	auipc	a0,0x363
+    80004582:	88250513          	addi	a0,a0,-1918 # 80366e00 <ag_model_blob_end+0x40>
     80004586:	c3afe0ef          	jal	800029c0 <ag_plat_puts>
     8000458a:	8401c517          	auipc	a0,0x8401c
     8000458e:	a7656503          	lwu	a0,-1418(a0) # 4020000 <ag_board_stage>
     80004592:	c8cfe0ef          	jal	80002a1e <ag_plat_put_int>
-    80004596:	00362517          	auipc	a0,0x362
-    8000459a:	7ba50513          	addi	a0,a0,1978 # 80366d50 <ag_model_blob_end+0x50>
+    80004596:	00363517          	auipc	a0,0x363
+    8000459a:	87a50513          	addi	a0,a0,-1926 # 80366e10 <ag_model_blob_end+0x50>
     8000459e:	c22fe0ef          	jal	800029c0 <ag_plat_puts>
     800045a2:	8401c517          	auipc	a0,0x8401c
     800045a6:	a6256503          	lwu	a0,-1438(a0) # 4020004 <ag_board_node>
     800045aa:	c74fe0ef          	jal	80002a1e <ag_plat_put_int>
-    800045ae:	00362517          	auipc	a0,0x362
-    800045b2:	7aa50513          	addi	a0,a0,1962 # 80366d58 <ag_model_blob_end+0x58>
+    800045ae:	00363517          	auipc	a0,0x363
+    800045b2:	86a50513          	addi	a0,a0,-1942 # 80366e18 <ag_model_blob_end+0x58>
     800045b6:	c0afe0ef          	jal	800029c0 <ag_plat_puts>
     mb_status(ST_ERROR);
     800045ba:	b0000537          	lui	a0,0xb0000
-    800045be:	0ee50513          	addi	a0,a0,238 # ffffffffb00000ee <_end+0xffffffff2fc5800e>
+    800045be:	0ee50513          	addi	a0,a0,238 # ffffffffb00000ee <_end+0xffffffff2fc57efe>
     800045c2:	f35ff0ef          	jal	800044f6 <mb_status>
     for (;;) __asm__ volatile("wfi");
     800045c6:	10500073          	wfi
@@ -8866,11 +8866,11 @@ void ag_board_main(void) {
     80004626:	00201073          	fsrm	zero
     uputs("\nanimeganv3 backdoor " BOARD_NAME " backend=" BOARD_BACKEND_STR " bf16 " BOARD_BUILD_STR "\n");
     8000462a:	00362517          	auipc	a0,0x362
-    8000462e:	73650513          	addi	a0,a0,1846 # 80366d60 <ag_model_blob_end+0x60>
+    8000462e:	7f650513          	addi	a0,a0,2038 # 80366e20 <ag_model_blob_end+0x60>
     80004632:	b8efe0ef          	jal	800029c0 <ag_plat_puts>
     uputs("pcie magic "); uhex(magic);
-    80004636:	00362517          	auipc	a0,0x362
-    8000463a:	76a50513          	addi	a0,a0,1898 # 80366da0 <ag_model_blob_end+0xa0>
+    80004636:	00363517          	auipc	a0,0x363
+    8000463a:	82a50513          	addi	a0,a0,-2006 # 80366e60 <ag_model_blob_end+0xa0>
     8000463e:	020a1993          	slli	s3,s4,0x20
     80004642:	b7efe0ef          	jal	800029c0 <ag_plat_puts>
     80004646:	0209d993          	srli	s3,s3,0x20
@@ -8880,8 +8880,8 @@ void ag_board_main(void) {
     80004650:	5a5ac7b7          	lui	a5,0x5a5ac
     80004654:	3c378793          	addi	a5,a5,963 # 5a5ac3c3 <_dtcm_end+0x5658b27b>
     80004658:	02fa0663          	beq	s4,a5,80004684 <ag_board_main+0xb4>
-    8000465c:	00362517          	auipc	a0,0x362
-    80004660:	75450513          	addi	a0,a0,1876 # 80366db0 <ag_model_blob_end+0xb0>
+    8000465c:	00363517          	auipc	a0,0x363
+    80004660:	81450513          	addi	a0,a0,-2028 # 80366e70 <ag_model_blob_end+0xb0>
     80004664:	e0da                	sd	s6,64(sp)
     80004666:	fc5e                	sd	s7,56(sp)
     80004668:	f862                	sd	s8,48(sp)
@@ -8891,12 +8891,12 @@ void ag_board_main(void) {
     80004670:	b50fe0ef          	jal	800029c0 <ag_plat_puts>
     80004674:	864e                	mv	a2,s3
     80004676:	8556                	mv	a0,s5
-    80004678:	00362597          	auipc	a1,0x362
-    8000467c:	74858593          	addi	a1,a1,1864 # 80366dc0 <ag_model_blob_end+0xc0>
+    80004678:	00363597          	auipc	a1,0x363
+    8000467c:	80858593          	addi	a1,a1,-2040 # 80366e80 <ag_model_blob_end+0xc0>
     80004680:	eadff0ef          	jal	8000452c <fail>
     uputs(" ok\n");
-    80004684:	00362517          	auipc	a0,0x362
-    80004688:	78450513          	addi	a0,a0,1924 # 80366e08 <ag_model_blob_end+0x108>
+    80004684:	00363517          	auipc	a0,0x363
+    80004688:	84450513          	addi	a0,a0,-1980 # 80366ec8 <ag_model_blob_end+0x108>
     8000468c:	b34fe0ef          	jal	800029c0 <ag_plat_puts>
 #ifdef AG_AME
     set_stage(AG_STAGE_SELFTEST);
@@ -8912,7 +8912,7 @@ void ag_board_main(void) {
     size_t i = 0, vl;
     800046a6:	4701                	li	a4,0
     while (i < 2 * 32 * 32) { vl = __riscv_vsetvl_e16m8(2 * 32 * 32 - i); __riscv_vse16_v_u16m8(ab + i, __riscv_vmv_v_x_u16m8(0x3F80, vl), vl); i += vl; }
-    800046a8:	10400837          	lui	a6,0x10400
+    800046a8:	10600837          	lui	a6,0x10600
     800046ac:	7ff00513          	li	a0,2047
     800046b0:	40e587b3          	sub	a5,a1,a4
     800046b4:	0cb7f7d7          	vsetvli	a5,a5,e16,m8,ta,ma
@@ -8925,11 +8925,11 @@ void ag_board_main(void) {
     memset(c, 0, 32 * 32 * sizeof(float));
     800046cc:	6605                	lui	a2,0x1
     800046ce:	4581                	li	a1,0
-    800046d0:	10401537          	lui	a0,0x10401
+    800046d0:	10601537          	lui	a0,0x10601
     800046d4:	a08fe0ef          	jal	800028dc <memset>
     ag_plat_ame_sync_in(ab, 0);
     800046d8:	4581                	li	a1,0
-    800046da:	10400537          	lui	a0,0x10400
+    800046da:	10600537          	lui	a0,0x10600
     800046de:	c7cfe0ef          	jal	80002b5a <ag_plat_ame_sync_in>
     __asm__ volatile("mv   t0, %0\n\t"
     800046e2:	02000793          	li	a5,32
@@ -8942,11 +8942,11 @@ void ag_board_main(void) {
     AG_AME_ZERO("acc0");
     800046f8:	0c00020b          	mzero	acc0
     ag_ame_macc1(ag_plat_ame_addr(ab + 32 * 32), AG_BLOCK * 2, ag_plat_ame_addr(ab), AG_BLOCK * 2);
-    800046fc:	10401537          	lui	a0,0x10401
-    80004700:	80050513          	addi	a0,a0,-2048 # 10400800 <_dtcm_end+0xc3df6b8>
+    800046fc:	10601537          	lui	a0,0x10601
+    80004700:	80050513          	addi	a0,a0,-2048 # 10600800 <_dtcm_end+0xc5df6b8>
     80004704:	c62fe0ef          	jal	80002b66 <ag_plat_ame_addr>
     80004708:	89aa                	mv	s3,a0
-    8000470a:	10400537          	lui	a0,0x10400
+    8000470a:	10600537          	lui	a0,0x10600
     8000470e:	c58fe0ef          	jal	80002b66 <ag_plat_ame_addr>
     80004712:	872a                	mv	a4,a0
     __asm__ volatile("mv a0, %0\n\t"
@@ -8959,7 +8959,7 @@ void ag_board_main(void) {
     80004724:	04d6048b          	mlae16	tr1,(a2),a3
     80004728:	0a048a0b          	mfmacc.s.bf16	acc0,tr0,tr1
     AG_AME_STORE_C("acc0", ag_plat_ame_addr(c), 32 * 4);
-    8000472c:	10401537          	lui	a0,0x10401
+    8000472c:	10601537          	lui	a0,0x10601
     80004730:	c36fe0ef          	jal	80002b66 <ag_plat_ame_addr>
     80004734:	87aa                	mv	a5,a0
     80004736:	08000713          	li	a4,128
@@ -8968,18 +8968,18 @@ void ag_board_main(void) {
     8000473e:	26b50a0b          	msce32	acc0,(a0),a1
     ag_plat_ame_sync_out(c, 0);
     80004742:	4581                	li	a1,0
-    80004744:	10401537          	lui	a0,0x10401
+    80004744:	10601537          	lui	a0,0x10601
     80004748:	c18fe0ef          	jal	80002b60 <ag_plat_ame_sync_out>
     ag_plat_ame_release();
     8000474c:	c30fe0ef          	jal	80002b7c <ag_plat_ame_release>
     for (i = 0; i < 32 * 32; i += vl) {
     80004750:	00363797          	auipc	a5,0x363
-    80004754:	95c7a787          	flw	fa5,-1700(a5) # 803670ac <ag_magic+0x44>
+    80004754:	a647a787          	flw	fa5,-1436(a5) # 803671b4 <ag_magic+0x44>
     80004758:	4701                	li	a4,0
         vl = __riscv_vsetvl_e32m8(32 * 32 - i);
     8000475a:	40000593          	li	a1,1024
         v = __riscv_vle32_v_f32m8(c + i, vl);
-    8000475e:	10401637          	lui	a2,0x10401
+    8000475e:	10601637          	lui	a2,0x10601
     for (i = 0; i < 32 * 32; i += vl) {
     80004762:	3ff00513          	li	a0,1023
         vl = __riscv_vsetvl_e32m8(32 * 32 - i);
@@ -9002,11 +9002,11 @@ void ag_board_main(void) {
     memset(ab, 0, 2 * 32 * 32 * sizeof(uint16_t));       /* RVV stores */
     8000478a:	6605                	lui	a2,0x1
     8000478c:	4581                	li	a1,0
-    8000478e:	10400537          	lui	a0,0x10400
+    8000478e:	10600537          	lui	a0,0x10600
     80004792:	94afe0ef          	jal	800028dc <memset>
     ag_plat_ame_sync_in(ab, 0);
     80004796:	4581                	li	a1,0
-    80004798:	10400537          	lui	a0,0x10400
+    80004798:	10600537          	lui	a0,0x10600
     8000479c:	bbefe0ef          	jal	80002b5a <ag_plat_ame_sync_in>
         long idx = clp_selftest(&bad.f);
         if (idx) {
@@ -9015,7 +9015,7 @@ void ag_board_main(void) {
         }
         uputs("clp self-test ok\n");
     800047a0:	00362517          	auipc	a0,0x362
-    800047a4:	6f850513          	addi	a0,a0,1784 # 80366e98 <ag_model_blob_end+0x198>
+    800047a4:	7b850513          	addi	a0,a0,1976 # 80366f58 <ag_model_blob_end+0x198>
     800047a8:	a18fe0ef          	jal	800029c0 <ag_plat_puts>
     }
 #endif
@@ -9024,16 +9024,16 @@ void ag_board_main(void) {
     800047ae:	cfdff0ef          	jal	800044aa <set_stage>
     if (ag_model_open(&model, ag_model_blob_start, (size_t)(ag_model_blob_end - ag_model_blob_start)) != 0) fail(2, "model open", 0);
     800047b2:	00362617          	auipc	a2,0x362
-    800047b6:	54e60613          	addi	a2,a2,1358 # 80366d00 <ag_model_blob_end>
+    800047b6:	60e60613          	addi	a2,a2,1550 # 80366dc0 <ag_model_blob_end>
     800047ba:	00000597          	auipc	a1,0x0
-    800047be:	70658593          	addi	a1,a1,1798 # 80004ec0 <ag_model_blob_start>
+    800047be:	7c658593          	addi	a1,a1,1990 # 80004f80 <ag_model_blob_start>
     800047c2:	8e0d                	sub	a2,a2,a1
-    800047c4:	7b018513          	addi	a0,gp,1968 # 80368060 <model>
+    800047c4:	7b818513          	addi	a0,gp,1976 # 80368170 <model>
     800047c8:	9c1fb0ef          	jal	80000188 <ag_model_open>
     800047cc:	cd41                	beqz	a0,80004864 <ag_board_main+0x294>
     800047ce:	4601                	li	a2,0
     800047d0:	00362597          	auipc	a1,0x362
-    800047d4:	6e058593          	addi	a1,a1,1760 # 80366eb0 <ag_model_blob_end+0x1b0>
+    800047d4:	7a058593          	addi	a1,a1,1952 # 80366f70 <ag_model_blob_end+0x1b0>
     800047d8:	4509                	li	a0,2
     800047da:	e0da                	sd	s6,64(sp)
     800047dc:	fc5e                	sd	s7,56(sp)
@@ -9052,7 +9052,7 @@ void ag_board_main(void) {
     800047f4:	428017d7          	vfmv.f.s	fa5,v8
     memset(ab, 0, 2 * 32 * 32 * sizeof(uint16_t));       /* RVV stores */
     800047f8:	4581                	li	a1,0
-    800047fa:	10400537          	lui	a0,0x10400
+    800047fa:	10600537          	lui	a0,0x10600
             *bad = __riscv_vfmv_f_s_f32m8_f32(__riscv_vslidedown_vx_f32m8(v, (size_t)first, vl));
     800047fe:	e00784d3          	fmv.x.w	s1,fa5
             result = 1 + (long)i + first;
@@ -9067,49 +9067,49 @@ void ag_board_main(void) {
     80004810:	8ccfe0ef          	jal	800028dc <memset>
     ag_plat_ame_sync_in(ab, 0);
     80004814:	4581                	li	a1,0
-    80004816:	10400537          	lui	a0,0x10400
+    80004816:	10600537          	lui	a0,0x10600
     8000481a:	b40fe0ef          	jal	80002b5a <ag_plat_ame_sync_in>
             uputs("clp self-test: C["); uint_(idx - 1); uputs("] bits="); uhex(bad.u); uputs(", want 32.0 (bits=0x42000000)\n");
     8000481e:	00362517          	auipc	a0,0x362
-    80004822:	5f250513          	addi	a0,a0,1522 # 80366e10 <ag_model_blob_end+0x110>
+    80004822:	6b250513          	addi	a0,a0,1714 # 80366ed0 <ag_model_blob_end+0x110>
     80004826:	99afe0ef          	jal	800029c0 <ag_plat_puts>
     8000482a:	147d                	addi	s0,s0,-1
     8000482c:	8522                	mv	a0,s0
     8000482e:	9f0fe0ef          	jal	80002a1e <ag_plat_put_int>
     80004832:	00362517          	auipc	a0,0x362
-    80004836:	5f650513          	addi	a0,a0,1526 # 80366e28 <ag_model_blob_end+0x128>
+    80004836:	6b650513          	addi	a0,a0,1718 # 80366ee8 <ag_model_blob_end+0x128>
     8000483a:	986fe0ef          	jal	800029c0 <ag_plat_puts>
     8000483e:	02049513          	slli	a0,s1,0x20
     80004842:	9101                	srli	a0,a0,0x20
     80004844:	c1dff0ef          	jal	80004460 <uhex>
     80004848:	00362517          	auipc	a0,0x362
-    8000484c:	5e850513          	addi	a0,a0,1512 # 80366e30 <ag_model_blob_end+0x130>
+    8000484c:	6a850513          	addi	a0,a0,1704 # 80366ef0 <ag_model_blob_end+0x130>
     80004850:	970fe0ef          	jal	800029c0 <ag_plat_puts>
             fail(8, "clp self-test (RVV window -> AMU -> RVV window), first bad element", idx - 1);
     80004854:	8622                	mv	a2,s0
     80004856:	00362597          	auipc	a1,0x362
-    8000485a:	5fa58593          	addi	a1,a1,1530 # 80366e50 <ag_model_blob_end+0x150>
+    8000485a:	6ba58593          	addi	a1,a1,1722 # 80366f10 <ag_model_blob_end+0x150>
     8000485e:	4521                	li	a0,8
     80004860:	ccdff0ef          	jal	8000452c <fail>
     tensor_data = ag_plat_alloc(model.tensor_count * sizeof(void *));
-    80004864:	7d01e503          	lwu	a0,2000(gp) # 80368080 <model+0x20>
-    80004868:	7a818993          	addi	s3,gp,1960 # 80368058 <tensor_data>
+    80004864:	7d81e503          	lwu	a0,2008(gp) # 80368190 <model+0x20>
+    80004868:	7b018993          	addi	s3,gp,1968 # 80368168 <tensor_data>
     tensor_size = ag_plat_alloc(model.tensor_count * sizeof(size_t));
-    8000486c:	7a018a13          	addi	s4,gp,1952 # 80368050 <tensor_size>
+    8000486c:	7a818a13          	addi	s4,gp,1960 # 80368160 <tensor_size>
     tensor_data = ag_plat_alloc(model.tensor_count * sizeof(void *));
     80004870:	050e                	slli	a0,a0,0x3
     80004872:	a70fe0ef          	jal	80002ae2 <ag_plat_alloc>
     tensor_size = ag_plat_alloc(model.tensor_count * sizeof(size_t));
-    80004876:	7d01e783          	lwu	a5,2000(gp) # 80368080 <model+0x20>
+    80004876:	7d81e783          	lwu	a5,2008(gp) # 80368190 <model+0x20>
     tensor_data = ag_plat_alloc(model.tensor_count * sizeof(void *));
     8000487a:	00a9b023          	sd	a0,0(s3)
     offsets = ag_plat_alloc(model.tensor_count * sizeof(uint64_t));
-    8000487e:	79818a93          	addi	s5,gp,1944 # 80368048 <offsets>
+    8000487e:	7a018a93          	addi	s5,gp,1952 # 80368158 <offsets>
     tensor_size = ag_plat_alloc(model.tensor_count * sizeof(size_t));
     80004882:	00379513          	slli	a0,a5,0x3
     80004886:	a5cfe0ef          	jal	80002ae2 <ag_plat_alloc>
     offsets = ag_plat_alloc(model.tensor_count * sizeof(uint64_t));
-    8000488a:	7d01e783          	lwu	a5,2000(gp) # 80368080 <model+0x20>
+    8000488a:	7d81e783          	lwu	a5,2008(gp) # 80368190 <model+0x20>
     tensor_size = ag_plat_alloc(model.tensor_count * sizeof(size_t));
     8000488e:	00aa3023          	sd	a0,0(s4)
     offsets = ag_plat_alloc(model.tensor_count * sizeof(uint64_t));
@@ -9126,10 +9126,10 @@ void ag_board_main(void) {
     800048aa:	cd05                	beqz	a0,800048e2 <ag_board_main+0x312>
     for (t = 0; t < model.tensor_count; ++t) {
         if (model.tensors[t].flags & 2) graph_in = t;
-    800048ac:	7b018793          	addi	a5,gp,1968 # 80368060 <model>
+    800048ac:	7b818793          	addi	a5,gp,1976 # 80368170 <model>
     800048b0:	0107b883          	ld	a7,16(a5)
     for (t = 0; t < model.tensor_count; ++t) {
-    800048b4:	7d01a583          	lw	a1,2000(gp) # 80368080 <model+0x20>
+    800048b4:	7d81a583          	lw	a1,2008(gp) # 80368190 <model+0x20>
         if (model.tensors[t].flags & 2) graph_in = t;
     800048b8:	4801                	li	a6,0
     800048ba:	00c88693          	addi	a3,a7,12
@@ -9141,13 +9141,13 @@ void ag_board_main(void) {
     800048c6:	429c                	lw	a5,0(a3)
     800048c8:	0027f613          	andi	a2,a5,2
     800048cc:	c219                	beqz	a2,800048d2 <ag_board_main+0x302>
-    800048ce:	84ba                	mv	s1,a4
-    800048d0:	4505                	li	a0,1
+    800048ce:	893a                	mv	s2,a4
+    800048d0:	4805                	li	a6,1
         if (model.tensors[t].flags & 4) graph_out = t;
     800048d2:	8b91                	andi	a5,a5,4
     800048d4:	c399                	beqz	a5,800048da <ag_board_main+0x30a>
-    800048d6:	893a                	mv	s2,a4
-    800048d8:	4805                	li	a6,1
+    800048d6:	84ba                	mv	s1,a4
+    800048d8:	4505                	li	a0,1
     for (t = 0; t < model.tensor_count; ++t) {
     800048da:	2705                	addiw	a4,a4,1
     800048dc:	05068693          	addi	a3,a3,80
@@ -9155,7 +9155,7 @@ void ag_board_main(void) {
     if (!tensor_data || !tensor_size || !offsets) fail(3, "alloc", 0);
     800048e2:	4601                	li	a2,0
     800048e4:	00362597          	auipc	a1,0x362
-    800048e8:	5dc58593          	addi	a1,a1,1500 # 80366ec0 <ag_model_blob_end+0x1c0>
+    800048e8:	69c58593          	addi	a1,a1,1692 # 80366f80 <ag_model_blob_end+0x1c0>
     800048ec:	450d                	li	a0,3
     800048ee:	e0da                	sd	s6,64(sp)
     800048f0:	fc5e                	sd	s7,56(sp)
@@ -9164,18 +9164,18 @@ void ag_board_main(void) {
     800048f6:	f06a                	sd	s10,32(sp)
     800048f8:	ec6e                	sd	s11,24(sp)
     800048fa:	c33ff0ef          	jal	8000452c <fail>
-    800048fe:	00080663          	beqz	a6,8000490a <ag_board_main+0x33a>
-    80004902:	00362797          	auipc	a5,0x362
-    80004906:	7b27ab23          	sw	s2,1974(a5) # 803670b8 <graph_out>
-    8000490a:	c119                	beqz	a0,80004910 <ag_board_main+0x340>
-    8000490c:	8091a623          	sw	s1,-2036(gp) # 803670bc <graph_in>
+    800048fe:	00080463          	beqz	a6,80004906 <ag_board_main+0x336>
+    80004902:	8121a623          	sw	s2,-2036(gp) # 803671c4 <graph_in>
+    80004906:	c509                	beqz	a0,80004910 <ag_board_main+0x340>
+    80004908:	00363797          	auipc	a5,0x363
+    8000490c:	8a97ac23          	sw	s1,-1864(a5) # 803671c0 <graph_out>
     }
     if (graph_in == UINT32_MAX || graph_out == UINT32_MAX) fail(4, "graph io missing", 0);
-    80004910:	80c1a783          	lw	a5,-2036(gp) # 803670bc <graph_in>
+    80004910:	80c1a783          	lw	a5,-2036(gp) # 803671c4 <graph_in>
     80004914:	577d                	li	a4,-1
     80004916:	04e78c63          	beq	a5,a4,8000496e <ag_board_main+0x39e>
-    8000491a:	00362697          	auipc	a3,0x362
-    8000491e:	79e6a683          	lw	a3,1950(a3) # 803670b8 <graph_out>
+    8000491a:	00363697          	auipc	a3,0x363
+    8000491e:	8a66a683          	lw	a3,-1882(a3) # 803671c0 <graph_out>
     80004922:	04e68663          	beq	a3,a4,8000496e <ag_board_main+0x39e>
     if (model.tensors[graph_in].type != AG_TYPE_BF16 || model.tensors[graph_out].type != AG_TYPE_BF16) fail(4, "graph io not bf16", 0);
     80004926:	02079513          	slli	a0,a5,0x20
@@ -9194,7 +9194,7 @@ void ag_board_main(void) {
     8000494e:	02e78e63          	beq	a5,a4,8000498a <ag_board_main+0x3ba>
     80004952:	4601                	li	a2,0
     80004954:	00362597          	auipc	a1,0x362
-    80004958:	58c58593          	addi	a1,a1,1420 # 80366ee0 <ag_model_blob_end+0x1e0>
+    80004958:	64c58593          	addi	a1,a1,1612 # 80366fa0 <ag_model_blob_end+0x1e0>
     8000495c:	4511                	li	a0,4
     8000495e:	e0da                	sd	s6,64(sp)
     80004960:	fc5e                	sd	s7,56(sp)
@@ -9206,7 +9206,7 @@ void ag_board_main(void) {
     if (graph_in == UINT32_MAX || graph_out == UINT32_MAX) fail(4, "graph io missing", 0);
     8000496e:	4601                	li	a2,0
     80004970:	00362597          	auipc	a1,0x362
-    80004974:	55858593          	addi	a1,a1,1368 # 80366ec8 <ag_model_blob_end+0x1c8>
+    80004974:	61858593          	addi	a1,a1,1560 # 80366f88 <ag_model_blob_end+0x1c8>
     80004978:	4511                	li	a0,4
     8000497a:	e0da                	sd	s6,64(sp)
     8000497c:	fc5e                	sd	s7,56(sp)
@@ -9215,20 +9215,20 @@ void ag_board_main(void) {
     80004982:	f06a                	sd	s10,32(sp)
     80004984:	ec6e                	sd	s11,24(sp)
     80004986:	ba7ff0ef          	jal	8000452c <fail>
-    8000498a:	f862                	sd	s8,48(sp)
     if (ag_tensor_elements(model.tensors + graph_in) != BOARD_FRAME_BYTES || ag_tensor_elements(model.tensors + graph_out) != BOARD_FRAME_BYTES)
-    8000498c:	f5cfb0ef          	jal	800000e8 <ag_tensor_elements>
-    80004990:	000c07b7          	lui	a5,0xc0
-    80004994:	892a                	mv	s2,a0
-    80004996:	02f50b63          	beq	a0,a5,800049cc <ag_board_main+0x3fc>
+    8000498a:	f5efb0ef          	jal	800000e8 <ag_tensor_elements>
+    8000498e:	000c07b7          	lui	a5,0xc0
+    80004992:	892a                	mv	s2,a0
+    80004994:	02f50c63          	beq	a0,a5,800049cc <ag_board_main+0x3fc>
         fail(4, "graph io is not a 512x512 RGB frame", (long)ag_tensor_elements(model.tensors + graph_in));
-    8000499a:	80c1e783          	lwu	a5,-2036(gp) # 803670bc <graph_in>
-    8000499e:	05000713          	li	a4,80
-    800049a2:	7b018693          	addi	a3,gp,1968 # 80368060 <model>
-    800049a6:	02e787b3          	mul	a5,a5,a4
-    800049aa:	6a88                	ld	a0,16(a3)
-    800049ac:	e0da                	sd	s6,64(sp)
-    800049ae:	fc5e                	sd	s7,56(sp)
+    80004998:	80c1e783          	lwu	a5,-2036(gp) # 803671c4 <graph_in>
+    8000499c:	05000713          	li	a4,80
+    800049a0:	7b818693          	addi	a3,gp,1976 # 80368170 <model>
+    800049a4:	02e787b3          	mul	a5,a5,a4
+    800049a8:	6a88                	ld	a0,16(a3)
+    800049aa:	e0da                	sd	s6,64(sp)
+    800049ac:	fc5e                	sd	s7,56(sp)
+    800049ae:	f862                	sd	s8,48(sp)
     800049b0:	f466                	sd	s9,40(sp)
     800049b2:	f06a                	sd	s10,32(sp)
     800049b4:	ec6e                	sd	s11,24(sp)
@@ -9236,494 +9236,553 @@ void ag_board_main(void) {
     800049b8:	f30fb0ef          	jal	800000e8 <ag_tensor_elements>
     800049bc:	862a                	mv	a2,a0
     800049be:	00362597          	auipc	a1,0x362
-    800049c2:	53a58593          	addi	a1,a1,1338 # 80366ef8 <ag_model_blob_end+0x1f8>
+    800049c2:	5fa58593          	addi	a1,a1,1530 # 80366fb8 <ag_model_blob_end+0x1f8>
     800049c6:	4511                	li	a0,4
     800049c8:	b65ff0ef          	jal	8000452c <fail>
     if (ag_tensor_elements(model.tensors + graph_in) != BOARD_FRAME_BYTES || ag_tensor_elements(model.tensors + graph_out) != BOARD_FRAME_BYTES)
     800049cc:	00362797          	auipc	a5,0x362
-    800049d0:	6ec7e783          	lwu	a5,1772(a5) # 803670b8 <graph_out>
-    800049d4:	7b018713          	addi	a4,gp,1968 # 80368060 <model>
+    800049d0:	7f47e783          	lwu	a5,2036(a5) # 803671c0 <graph_out>
+    800049d4:	7b818713          	addi	a4,gp,1976 # 80368170 <model>
     800049d8:	6b08                	ld	a0,16(a4)
     800049da:	029787b3          	mul	a5,a5,s1
     800049de:	953e                	add	a0,a0,a5
     800049e0:	f08fb0ef          	jal	800000e8 <ag_tensor_elements>
-    800049e4:	8c2a                	mv	s8,a0
-    800049e6:	fb251ae3          	bne	a0,s2,8000499a <ag_board_main+0x3ca>
-    if ((rc = ag_plan_build(&model, BOARD_BACKEND, offsets, &plan)) != 0) fail(5, "plan", rc);
-    800049ea:	000ab603          	ld	a2,0(s5)
-    800049ee:	7d818693          	addi	a3,gp,2008 # 80368088 <plan>
-    800049f2:	4585                	li	a1,1
-    800049f4:	7b018513          	addi	a0,gp,1968 # 80368060 <model>
-    800049f8:	8a6fc0ef          	jal	80000a9e <ag_plan_build>
-    800049fc:	e0da                	sd	s6,64(sp)
-    800049fe:	862a                	mv	a2,a0
-    80004a00:	cd01                	beqz	a0,80004a18 <ag_board_main+0x448>
-    80004a02:	00362597          	auipc	a1,0x362
-    80004a06:	51e58593          	addi	a1,a1,1310 # 80366f20 <ag_model_blob_end+0x220>
-    80004a0a:	4515                	li	a0,5
-    80004a0c:	fc5e                	sd	s7,56(sp)
-    80004a0e:	f466                	sd	s9,40(sp)
-    80004a10:	f06a                	sd	s10,32(sp)
-    80004a12:	ec6e                	sd	s11,24(sp)
-    80004a14:	b19ff0ef          	jal	8000452c <fail>
-    in_bytes = ag_tensor_bytes(model.tensors + graph_in) + AG_PLAN_TAIL;
-    80004a18:	80c1e783          	lwu	a5,-2036(gp) # 803670bc <graph_in>
-    80004a1c:	7b018713          	addi	a4,gp,1968 # 80368060 <model>
-    80004a20:	6b08                	ld	a0,16(a4)
-    80004a22:	029787b3          	mul	a5,a5,s1
+    800049e4:	fb251ae3          	bne	a0,s2,80004998 <ag_board_main+0x3c8>
+    if (ag_tensor_bytes(model.tensors + graph_out) != BOARD_OUT_TENSOR_BYTES)
+    800049e8:	00362797          	auipc	a5,0x362
+    800049ec:	7d87e783          	lwu	a5,2008(a5) # 803671c0 <graph_out>
+    800049f0:	7b818913          	addi	s2,gp,1976 # 80368170 <model>
+    800049f4:	01093503          	ld	a0,16(s2)
+    800049f8:	029787b3          	mul	a5,a5,s1
+    800049fc:	953e                	add	a0,a0,a5
+    800049fe:	f14fb0ef          	jal	80000112 <ag_tensor_bytes>
+    80004a02:	001807b7          	lui	a5,0x180
+    80004a06:	02f50b63          	beq	a0,a5,80004a3c <ag_board_main+0x46c>
+        fail(4, "graph output is not the dense bf16 tensor of its fixed slot, bytes", (long)ag_tensor_bytes(model.tensors + graph_out));
+    80004a0a:	00362797          	auipc	a5,0x362
+    80004a0e:	7b67e783          	lwu	a5,1974(a5) # 803671c0 <graph_out>
+    80004a12:	01093503          	ld	a0,16(s2)
+    80004a16:	e0da                	sd	s6,64(sp)
+    80004a18:	029787b3          	mul	a5,a5,s1
+    80004a1c:	fc5e                	sd	s7,56(sp)
+    80004a1e:	f862                	sd	s8,48(sp)
+    80004a20:	f466                	sd	s9,40(sp)
+    80004a22:	f06a                	sd	s10,32(sp)
+    80004a24:	ec6e                	sd	s11,24(sp)
     80004a26:	953e                	add	a0,a0,a5
     80004a28:	eeafb0ef          	jal	80000112 <ag_tensor_bytes>
-    80004a2c:	6789                	lui	a5,0x2
-    80004a2e:	00f50b33          	add	s6,a0,a5
-    if (in_bytes > BOARD_CLP_ARENA - BOARD_CLP_GRAPH_IN) fail(3, "graph input does not fit its CLP slot", (long)in_bytes);
-    80004a32:	002007b7          	lui	a5,0x200
-    80004a36:	0367e463          	bltu	a5,s6,80004a5e <ag_board_main+0x48e>
+    80004a2c:	862a                	mv	a2,a0
+    80004a2e:	00362597          	auipc	a1,0x362
+    80004a32:	5b258593          	addi	a1,a1,1458 # 80366fe0 <ag_model_blob_end+0x220>
+    80004a36:	4511                	li	a0,4
+    80004a38:	af5ff0ef          	jal	8000452c <fail>
+    if ((rc = ag_plan_build(&model, BOARD_BACKEND, offsets, &plan)) != 0) fail(5, "plan", rc);
+    80004a3c:	000ab603          	ld	a2,0(s5)
+    80004a40:	7e018693          	addi	a3,gp,2016 # 80368198 <plan>
+    80004a44:	4585                	li	a1,1
+    80004a46:	7b818513          	addi	a0,gp,1976 # 80368170 <model>
+    80004a4a:	854fc0ef          	jal	80000a9e <ag_plan_build>
+    80004a4e:	862a                	mv	a2,a0
+    80004a50:	cd11                	beqz	a0,80004a6c <ag_board_main+0x49c>
+    80004a52:	00362597          	auipc	a1,0x362
+    80004a56:	5d658593          	addi	a1,a1,1494 # 80367028 <ag_model_blob_end+0x268>
+    80004a5a:	4515                	li	a0,5
+    80004a5c:	e0da                	sd	s6,64(sp)
+    80004a5e:	fc5e                	sd	s7,56(sp)
+    80004a60:	f862                	sd	s8,48(sp)
+    80004a62:	f466                	sd	s9,40(sp)
+    80004a64:	f06a                	sd	s10,32(sp)
+    80004a66:	ec6e                	sd	s11,24(sp)
+    80004a68:	ac5ff0ef          	jal	8000452c <fail>
+    in_bytes = ag_tensor_bytes(model.tensors + graph_in) + AG_PLAN_TAIL;
+    80004a6c:	80c1e783          	lwu	a5,-2036(gp) # 803671c4 <graph_in>
+    80004a70:	7b818713          	addi	a4,gp,1976 # 80368170 <model>
+    80004a74:	6b08                	ld	a0,16(a4)
+    80004a76:	029787b3          	mul	a5,a5,s1
+    80004a7a:	953e                	add	a0,a0,a5
+    80004a7c:	e96fb0ef          	jal	80000112 <ag_tensor_bytes>
+    80004a80:	6789                	lui	a5,0x2
+    80004a82:	00f50933          	add	s2,a0,a5
+    if (in_bytes > BOARD_CLP_OUT_TENSOR - BOARD_CLP_GRAPH_IN) fail(3, "graph input does not fit its CLP slot", (long)in_bytes);
+    80004a86:	002007b7          	lui	a5,0x200
+    80004a8a:	0327e663          	bltu	a5,s2,80004ab6 <ag_board_main+0x4e6>
     if (plan.arena_bytes > BOARD_CLP_BYTES - BOARD_CLP_ARENA) fail(3, "arena does not fit the CLP window", (long)plan.arena_bytes);
-    80004a3a:	7b018793          	addi	a5,gp,1968 # 80368060 <model>
-    80004a3e:	7790                	ld	a2,40(a5)
-    80004a40:	0fc007b7          	lui	a5,0xfc00
-    80004a44:	fc5e                	sd	s7,56(sp)
-    80004a46:	f466                	sd	s9,40(sp)
-    80004a48:	02c7f763          	bgeu	a5,a2,80004a76 <ag_board_main+0x4a6>
-    80004a4c:	00362597          	auipc	a1,0x362
-    80004a50:	50458593          	addi	a1,a1,1284 # 80366f50 <ag_model_blob_end+0x250>
-    80004a54:	450d                	li	a0,3
-    80004a56:	f06a                	sd	s10,32(sp)
-    80004a58:	ec6e                	sd	s11,24(sp)
-    80004a5a:	ad3ff0ef          	jal	8000452c <fail>
-    if (in_bytes > BOARD_CLP_ARENA - BOARD_CLP_GRAPH_IN) fail(3, "graph input does not fit its CLP slot", (long)in_bytes);
-    80004a5e:	865a                	mv	a2,s6
-    80004a60:	00362597          	auipc	a1,0x362
-    80004a64:	4c858593          	addi	a1,a1,1224 # 80366f28 <ag_model_blob_end+0x228>
-    80004a68:	450d                	li	a0,3
-    80004a6a:	fc5e                	sd	s7,56(sp)
-    80004a6c:	f466                	sd	s9,40(sp)
-    80004a6e:	f06a                	sd	s10,32(sp)
-    80004a70:	ec6e                	sd	s11,24(sp)
-    80004a72:	abbff0ef          	jal	8000452c <fail>
+    80004a8e:	7b818793          	addi	a5,gp,1976 # 80368170 <model>
+    80004a92:	7790                	ld	a2,40(a5)
+    80004a94:	0fa007b7          	lui	a5,0xfa00
+    80004a98:	e0da                	sd	s6,64(sp)
+    80004a9a:	fc5e                	sd	s7,56(sp)
+    80004a9c:	f862                	sd	s8,48(sp)
+    80004a9e:	02c7fa63          	bgeu	a5,a2,80004ad2 <ag_board_main+0x502>
+    80004aa2:	00362597          	auipc	a1,0x362
+    80004aa6:	5b658593          	addi	a1,a1,1462 # 80367058 <ag_model_blob_end+0x298>
+    80004aaa:	450d                	li	a0,3
+    80004aac:	f466                	sd	s9,40(sp)
+    80004aae:	f06a                	sd	s10,32(sp)
+    80004ab0:	ec6e                	sd	s11,24(sp)
+    80004ab2:	a7bff0ef          	jal	8000452c <fail>
+    if (in_bytes > BOARD_CLP_OUT_TENSOR - BOARD_CLP_GRAPH_IN) fail(3, "graph input does not fit its CLP slot", (long)in_bytes);
+    80004ab6:	864a                	mv	a2,s2
+    80004ab8:	00362597          	auipc	a1,0x362
+    80004abc:	57858593          	addi	a1,a1,1400 # 80367030 <ag_model_blob_end+0x270>
+    80004ac0:	450d                	li	a0,3
+    80004ac2:	e0da                	sd	s6,64(sp)
+    80004ac4:	fc5e                	sd	s7,56(sp)
+    80004ac6:	f862                	sd	s8,48(sp)
+    80004ac8:	f466                	sd	s9,40(sp)
+    80004aca:	f06a                	sd	s10,32(sp)
+    80004acc:	ec6e                	sd	s11,24(sp)
+    80004ace:	a5fff0ef          	jal	8000452c <fail>
     input = CLP(BOARD_CLP_GRAPH_IN);
+    output = CLP(BOARD_CLP_OUT_TENSOR);
     arena = CLP(BOARD_CLP_ARENA);
     mbox->nodes = model.node_count;
-    80004a76:	7d41a783          	lw	a5,2004(gp) # 80368084 <model+0x24>
-    input = CLP(BOARD_CLP_GRAPH_IN);
-    80004a7a:	102006b7          	lui	a3,0x10200
+    80004ad2:	7dc1a783          	lw	a5,2012(gp) # 80368194 <model+0x24>
+    output = CLP(BOARD_CLP_OUT_TENSOR);
+    80004ad6:	104006b7          	lui	a3,0x10400
     arena = CLP(BOARD_CLP_ARENA);
-    80004a7e:	10400737          	lui	a4,0x10400
+    80004ada:	10600737          	lui	a4,0x10600
     input = CLP(BOARD_CLP_GRAPH_IN);
-    80004a82:	78818493          	addi	s1,gp,1928 # 80368038 <input>
+    80004ade:	10200637          	lui	a2,0x10200
+    80004ae2:	f06a                	sd	s10,32(sp)
+    80004ae4:	79018493          	addi	s1,gp,1936 # 80368148 <input>
     arena = CLP(BOARD_CLP_ARENA);
-    80004a86:	79018913          	addi	s2,gp,1936 # 80368040 <arena>
+    80004ae8:	79818b13          	addi	s6,gp,1944 # 80368150 <arena>
+    output = CLP(BOARD_CLP_OUT_TENSOR);
+    80004aec:	78818b93          	addi	s7,gp,1928 # 80368140 <output>
     mbox->nodes = model.node_count;
-    80004a8a:	0087fbb7          	lui	s7,0x87f
-    input = CLP(BOARD_CLP_GRAPH_IN);
-    80004a8e:	e094                	sd	a3,0(s1)
+    80004af0:	0087fc37          	lui	s8,0x87f
+    output = CLP(BOARD_CLP_OUT_TENSOR);
+    80004af4:	00dbb023          	sd	a3,0(s7)
     arena = CLP(BOARD_CLP_ARENA);
-    80004a90:	00e93023          	sd	a4,0(s2)
+    80004af8:	00eb3023          	sd	a4,0(s6)
+    input = CLP(BOARD_CLP_GRAPH_IN);
+    80004afc:	e090                	sd	a2,0(s1)
     mbox->nodes = model.node_count;
-    80004a94:	0ba2                	slli	s7,s7,0x8
-    80004a96:	00fba623          	sw	a5,12(s7) # 87f00c <_stack_size+0x83f00c>
+    80004afe:	0c22                	slli	s8,s8,0x8
+    80004b00:	00fc2623          	sw	a5,12(s8) # 87f00c <_stack_size+0x83f00c>
     BOARD_LOG(uputs("model nodes="), uint_(model.node_count), uputs(" tensors="), uint_(model.tensor_count),
-    80004a9a:	00362517          	auipc	a0,0x362
-    80004a9e:	4de50513          	addi	a0,a0,1246 # 80366f78 <ag_model_blob_end+0x278>
-    80004aa2:	f1ffd0ef          	jal	800029c0 <ag_plat_puts>
-    80004aa6:	7d41e503          	lwu	a0,2004(gp) # 80368084 <model+0x24>
-    80004aaa:	7b018c93          	addi	s9,gp,1968 # 80368060 <model>
-    80004aae:	f71fd0ef          	jal	80002a1e <ag_plat_put_int>
-    80004ab2:	00362517          	auipc	a0,0x362
-    80004ab6:	4d650513          	addi	a0,a0,1238 # 80366f88 <ag_model_blob_end+0x288>
-    80004aba:	f07fd0ef          	jal	800029c0 <ag_plat_puts>
-    80004abe:	7d01e503          	lwu	a0,2000(gp) # 80368080 <model+0x20>
-    80004ac2:	f5dfd0ef          	jal	80002a1e <ag_plat_put_int>
-    80004ac6:	00362517          	auipc	a0,0x362
-    80004aca:	4d250513          	addi	a0,a0,1234 # 80366f98 <ag_model_blob_end+0x298>
-    80004ace:	ef3fd0ef          	jal	800029c0 <ag_plat_puts>
-    80004ad2:	028cb503          	ld	a0,40(s9)
-    80004ad6:	f49fd0ef          	jal	80002a1e <ag_plat_put_int>
-    80004ada:	00362517          	auipc	a0,0x362
-    80004ade:	4c650513          	addi	a0,a0,1222 # 80366fa0 <ag_model_blob_end+0x2a0>
-    80004ae2:	edffd0ef          	jal	800029c0 <ag_plat_puts>
-    80004ae6:	00093503          	ld	a0,0(s2)
-    80004aea:	87cfe0ef          	jal	80002b66 <ag_plat_ame_addr>
-    80004aee:	973ff0ef          	jal	80004460 <uhex>
-    80004af2:	00362517          	auipc	a0,0x362
-    80004af6:	4b650513          	addi	a0,a0,1206 # 80366fa8 <ag_model_blob_end+0x2a8>
-    80004afa:	ec7fd0ef          	jal	800029c0 <ag_plat_puts>
-    80004afe:	038cb503          	ld	a0,56(s9)
-    80004b02:	f1dfd0ef          	jal	80002a1e <ag_plat_put_int>
-    80004b06:	00362517          	auipc	a0,0x362
-    80004b0a:	21a50513          	addi	a0,a0,538 # 80366d20 <ag_model_blob_end+0x20>
-    80004b0e:	eb3fd0ef          	jal	800029c0 <ag_plat_puts>
+    80004b04:	00362517          	auipc	a0,0x362
+    80004b08:	57c50513          	addi	a0,a0,1404 # 80367080 <ag_model_blob_end+0x2c0>
+    80004b0c:	eb5fd0ef          	jal	800029c0 <ag_plat_puts>
+    80004b10:	7dc1e503          	lwu	a0,2012(gp) # 80368194 <model+0x24>
+    80004b14:	7b818d13          	addi	s10,gp,1976 # 80368170 <model>
+    80004b18:	f07fd0ef          	jal	80002a1e <ag_plat_put_int>
+    80004b1c:	00362517          	auipc	a0,0x362
+    80004b20:	57450513          	addi	a0,a0,1396 # 80367090 <ag_model_blob_end+0x2d0>
+    80004b24:	e9dfd0ef          	jal	800029c0 <ag_plat_puts>
+    80004b28:	7d81e503          	lwu	a0,2008(gp) # 80368190 <model+0x20>
+    80004b2c:	ef3fd0ef          	jal	80002a1e <ag_plat_put_int>
+    80004b30:	00362517          	auipc	a0,0x362
+    80004b34:	57050513          	addi	a0,a0,1392 # 803670a0 <ag_model_blob_end+0x2e0>
+    80004b38:	e89fd0ef          	jal	800029c0 <ag_plat_puts>
+    80004b3c:	028d3503          	ld	a0,40(s10)
+    80004b40:	edffd0ef          	jal	80002a1e <ag_plat_put_int>
+    80004b44:	00362517          	auipc	a0,0x362
+    80004b48:	56450513          	addi	a0,a0,1380 # 803670a8 <ag_model_blob_end+0x2e8>
+    80004b4c:	e75fd0ef          	jal	800029c0 <ag_plat_puts>
+    80004b50:	000b3503          	ld	a0,0(s6)
+    80004b54:	812fe0ef          	jal	80002b66 <ag_plat_ame_addr>
+    80004b58:	909ff0ef          	jal	80004460 <uhex>
+    80004b5c:	00362517          	auipc	a0,0x362
+    80004b60:	55450513          	addi	a0,a0,1364 # 803670b0 <ag_model_blob_end+0x2f0>
+    80004b64:	e5dfd0ef          	jal	800029c0 <ag_plat_puts>
+    80004b68:	038d3503          	ld	a0,56(s10)
+    80004b6c:	eb3fd0ef          	jal	80002a1e <ag_plat_put_int>
+    80004b70:	00362517          	auipc	a0,0x362
+    80004b74:	27050513          	addi	a0,a0,624 # 80366de0 <ag_model_blob_end+0x20>
+    80004b78:	e49fd0ef          	jal	800029c0 <ag_plat_puts>
               uputs(" arena="), uint_((long)plan.arena_bytes), uputs(" at "), uhex((uintptr_t)ag_plat_ame_addr(arena)),
               uputs(" scratch="), uint_((long)plan.scratch_bytes), uputs("\n"));
     set_stage(AG_STAGE_ZERO);
-    80004b12:	4511                	li	a0,4
-    80004b14:	997ff0ef          	jal	800044aa <set_stage>
+    80004b7c:	4511                	li	a0,4
+    80004b7e:	92dff0ef          	jal	800044aa <set_stage>
     memset(input, 0, in_bytes);           /* RVV stores (libc_min) */
-    80004b18:	6088                	ld	a0,0(s1)
-    80004b1a:	865a                	mv	a2,s6
-    80004b1c:	4581                	li	a1,0
-    80004b1e:	dbffd0ef          	jal	800028dc <memset>
+    80004b82:	6088                	ld	a0,0(s1)
+    80004b84:	864a                	mv	a2,s2
+    80004b86:	4581                	li	a1,0
+    80004b88:	d55fd0ef          	jal	800028dc <memset>
+    memset(output, 0, BOARD_OUT_TENSOR_BYTES);   /* a run that stops early leaves zeros, not the last frame's tensor */
+    80004b8c:	000bb503          	ld	a0,0(s7)
+    80004b90:	00180637          	lui	a2,0x180
+    80004b94:	4581                	li	a1,0
+    80004b96:	d47fd0ef          	jal	800028dc <memset>
     memset(arena, 0, (size_t)plan.arena_bytes);
-    80004b22:	028cb603          	ld	a2,40(s9)
-    80004b26:	00093503          	ld	a0,0(s2)
-    80004b2a:	4581                	li	a1,0
-    80004b2c:	db1fd0ef          	jal	800028dc <memset>
+    80004b9a:	028d3603          	ld	a2,40(s10)
+    80004b9e:	000b3503          	ld	a0,0(s6)
+    80004ba2:	4581                	li	a1,0
+    80004ba4:	d39fd0ef          	jal	800028dc <memset>
     mb_status(ST_RUNNING);
-    80004b30:	b0000537          	lui	a0,0xb0000
-    80004b34:	050d                	addi	a0,a0,3 # ffffffffb0000003 <_end+0xffffffff2fc57f23>
-    80004b36:	9c1ff0ef          	jal	800044f6 <mb_status>
+    80004ba8:	b0000537          	lui	a0,0xb0000
+    80004bac:	050d                	addi	a0,a0,3 # ffffffffb0000003 <_end+0xffffffff2fc57e13>
+    80004bae:	949ff0ef          	jal	800044f6 <mb_status>
     set_stage(AG_STAGE_PRE);
-    80004b3a:	4515                	li	a0,5
-    80004b3c:	96fff0ef          	jal	800044aa <set_stage>
+    80004bb2:	4515                	li	a0,5
+    80004bb4:	8f7ff0ef          	jal	800044aa <set_stage>
     c0 = ag_board_cycles();
-    80004b40:	806fe0ef          	jal	80002b46 <ag_board_cycles>
-    80004b44:	8b2a                	mv	s6,a0
+    80004bb8:	f8ffd0ef          	jal	80002b46 <ag_board_cycles>
+    80004bbc:	892a                	mv	s2,a0
     ag_rvv_u8_to_bf16(dst, src, n);
-    80004b46:	6088                	ld	a0,0(s1)
-    80004b48:	8662                	mv	a2,s8
-    80004b4a:	100005b7          	lui	a1,0x10000
-    80004b4e:	83fff0ef          	jal	8000438c <ag_rvv_u8_to_bf16>
+    80004bbe:	6088                	ld	a0,0(s1)
+    80004bc0:	000c0637          	lui	a2,0xc0
+    80004bc4:	100005b7          	lui	a1,0x10000
+    80004bc8:	fc4ff0ef          	jal	8000438c <ag_rvv_u8_to_bf16>
     pre_process(input, frame_in, BOARD_FRAME_BYTES);
     mbox->pre = ag_board_cycles() - c0;
-    80004b52:	ff5fd0ef          	jal	80002b46 <ag_board_cycles>
-    80004b56:	416507b3          	sub	a5,a0,s6
-    80004b5a:	00fbb823          	sd	a5,16(s7)
+    80004bcc:	f7bfd0ef          	jal	80002b46 <ag_board_cycles>
+    80004bd0:	412507b3          	sub	a5,a0,s2
+    80004bd4:	00fc3823          	sd	a5,16(s8)
     set_stage(AG_STAGE_FORWARD);
-    80004b5e:	4519                	li	a0,6
-    80004b60:	94bff0ef          	jal	800044aa <set_stage>
+    80004bd8:	4519                	li	a0,6
+    80004bda:	8d1ff0ef          	jal	800044aa <set_stage>
     c0 = ag_board_cycles();
-    80004b64:	fe3fd0ef          	jal	80002b46 <ag_board_cycles>
+    80004bde:	f69fd0ef          	jal	80002b46 <ag_board_cycles>
     if (ag_runtime_init(&runtime, &model, tensor_data, tensor_size, model.tensor_count, BOARD_BACKEND) != 0) return -8;
-    80004b68:	000a3683          	ld	a3,0(s4)
-    80004b6c:	0009b603          	ld	a2,0(s3)
-    80004b70:	7d01a703          	lw	a4,2000(gp) # 80368080 <model+0x20>
+    80004be2:	000a3683          	ld	a3,0(s4)
+    80004be6:	0009b603          	ld	a2,0(s3)
+    80004bea:	7d81a703          	lw	a4,2008(gp) # 80368190 <model+0x20>
     c0 = ag_board_cycles();
-    80004b74:	8b2a                	mv	s6,a0
+    80004bee:	892a                	mv	s2,a0
     *cyc_conv = *cyc_other = 0;
-    80004b76:	020bb423          	sd	zero,40(s7)
-    80004b7a:	020bb023          	sd	zero,32(s7)
+    80004bf0:	020c3423          	sd	zero,40(s8)
+    80004bf4:	020c3023          	sd	zero,32(s8)
     if (ag_runtime_init(&runtime, &model, tensor_data, tensor_size, model.tensor_count, BOARD_BACKEND) != 0) return -8;
-    80004b7e:	4785                	li	a5,1
-    80004b80:	85e6                	mv	a1,s9
-    80004b82:	00363517          	auipc	a0,0x363
-    80004b86:	52650513          	addi	a0,a0,1318 # 803680a8 <runtime>
-    80004b8a:	b75fb0ef          	jal	800006fe <ag_runtime_init>
-    80004b8e:	32051663          	bnez	a0,80004eba <ag_board_main+0x8ea>
+    80004bf8:	4785                	li	a5,1
+    80004bfa:	85ea                	mv	a1,s10
+    80004bfc:	00363517          	auipc	a0,0x363
+    80004c00:	5bc50513          	addi	a0,a0,1468 # 803681b8 <runtime>
+    80004c04:	afbfb0ef          	jal	800006fe <ag_runtime_init>
+    80004c08:	e945                	bnez	a0,80004cb8 <ag_board_main+0x6e8>
     if (ag_runtime_bind(&runtime, graph_in, input, ag_tensor_bytes(model.tensors + graph_in)) != 0) return -9;
-    80004b92:	80c1ac03          	lw	s8,-2036(gp) # 803670bc <graph_in>
-    80004b96:	05000b93          	li	s7,80
-    80004b9a:	010cb503          	ld	a0,16(s9)
-    80004b9e:	020c1793          	slli	a5,s8,0x20
-    80004ba2:	9381                	srli	a5,a5,0x20
-    80004ba4:	037787b3          	mul	a5,a5,s7
-    80004ba8:	6084                	ld	s1,0(s1)
-    80004baa:	953e                	add	a0,a0,a5
-    80004bac:	d66fb0ef          	jal	80000112 <ag_tensor_bytes>
-    80004bb0:	86aa                	mv	a3,a0
-    80004bb2:	8626                	mv	a2,s1
-    80004bb4:	85e2                	mv	a1,s8
-    80004bb6:	00363517          	auipc	a0,0x363
-    80004bba:	4f250513          	addi	a0,a0,1266 # 803680a8 <runtime>
-    80004bbe:	bedfb0ef          	jal	800007aa <ag_runtime_bind>
-    80004bc2:	2e051a63          	bnez	a0,80004eb6 <ag_board_main+0x8e6>
+    80004c0a:	f466                	sd	s9,40(sp)
+    80004c0c:	80c1ac83          	lw	s9,-2036(gp) # 803671c4 <graph_in>
+    80004c10:	05000c13          	li	s8,80
+    80004c14:	010d3503          	ld	a0,16(s10)
+    80004c18:	020c9793          	slli	a5,s9,0x20
+    80004c1c:	9381                	srli	a5,a5,0x20
+    80004c1e:	038787b3          	mul	a5,a5,s8
+    80004c22:	6084                	ld	s1,0(s1)
+    80004c24:	953e                	add	a0,a0,a5
+    80004c26:	cecfb0ef          	jal	80000112 <ag_tensor_bytes>
+    80004c2a:	86aa                	mv	a3,a0
+    80004c2c:	8626                	mv	a2,s1
+    80004c2e:	85e6                	mv	a1,s9
+    80004c30:	00363517          	auipc	a0,0x363
+    80004c34:	58850513          	addi	a0,a0,1416 # 803681b8 <runtime>
+    80004c38:	b73fb0ef          	jal	800007aa <ag_runtime_bind>
+    80004c3c:	e155                	bnez	a0,80004ce0 <ag_board_main+0x710>
     runtime.scratch = arena + plan.scratch_offset;
-    80004bc6:	030cb683          	ld	a3,48(s9)
-    80004bca:	00093783          	ld	a5,0(s2)
+    80004c3e:	7b818613          	addi	a2,gp,1976 # 80368170 <model>
+    80004c42:	7a14                	ld	a3,48(a2)
+    80004c44:	000b3783          	ld	a5,0(s6)
     runtime.scratch_size = (size_t)plan.scratch_bytes;
-    80004bce:	038cb703          	ld	a4,56(s9)
-    for (t = 0; t < model.tensor_count; ++t)
-    80004bd2:	4481                	li	s1,0
+    80004c48:	7e18                	ld	a4,56(a2)
+    80004c4a:	00362597          	auipc	a1,0x362
+    80004c4e:	5765a583          	lw	a1,1398(a1) # 803671c0 <graph_out>
     runtime.scratch = arena + plan.scratch_offset;
-    80004bd4:	97b6                	add	a5,a5,a3
-    80004bd6:	7d01a683          	lw	a3,2000(gp) # 80368080 <model+0x20>
-    80004bda:	06fcb423          	sd	a5,104(s9)
+    80004c52:	97b6                	add	a5,a5,a3
+    80004c54:	7d81a683          	lw	a3,2008(gp) # 80368190 <model+0x20>
+    for (t = 0; t < model.tensor_count; ++t)
+    80004c58:	4481                	li	s1,0
+    runtime.scratch = arena + plan.scratch_offset;
+    80004c5a:	f63c                	sd	a5,104(a2)
     runtime.scratch_size = (size_t)plan.scratch_bytes;
-    80004bde:	06ecb823          	sd	a4,112(s9)
-        if (offsets[t] != UINT64_MAX && ag_runtime_bind(&runtime, t, arena + offsets[t], ag_tensor_bytes(model.tensors + t)) != 0) return -9;
-    80004be2:	5cfd                	li	s9,-1
+    80004c5c:	fa38                	sd	a4,112(a2)
+        if (t != graph_out && offsets[t] != UINT64_MAX && ag_runtime_bind(&runtime, t, arena + offsets[t], ag_tensor_bytes(model.tensors + t)) != 0) return -9;
+    80004c5e:	5d7d                	li	s10,-1
     for (t = 0; t < model.tensor_count; ++t)
-    80004be4:	04d4f763          	bgeu	s1,a3,80004c32 <ag_board_main+0x662>
-        if (offsets[t] != UINT64_MAX && ag_runtime_bind(&runtime, t, arena + offsets[t], ag_tensor_bytes(model.tensors + t)) != 0) return -9;
-    80004be8:	000ab703          	ld	a4,0(s5)
-    80004bec:	02049793          	slli	a5,s1,0x20
-    80004bf0:	9381                	srli	a5,a5,0x20
-    80004bf2:	00379613          	slli	a2,a5,0x3
-    80004bf6:	9732                	add	a4,a4,a2
-    80004bf8:	6318                	ld	a4,0(a4)
-    80004bfa:	03970a63          	beq	a4,s9,80004c2e <ag_board_main+0x65e>
-    80004bfe:	037787b3          	mul	a5,a5,s7
-    80004c02:	7b018693          	addi	a3,gp,1968 # 80368060 <model>
-    80004c06:	6a88                	ld	a0,16(a3)
-    80004c08:	00093c03          	ld	s8,0(s2)
-    80004c0c:	9c3a                	add	s8,s8,a4
-    80004c0e:	953e                	add	a0,a0,a5
-    80004c10:	d02fb0ef          	jal	80000112 <ag_tensor_bytes>
-    80004c14:	86aa                	mv	a3,a0
-    80004c16:	8662                	mv	a2,s8
-    80004c18:	85a6                	mv	a1,s1
-    80004c1a:	00363517          	auipc	a0,0x363
-    80004c1e:	48e50513          	addi	a0,a0,1166 # 803680a8 <runtime>
-    80004c22:	b89fb0ef          	jal	800007aa <ag_runtime_bind>
-    80004c26:	0e051063          	bnez	a0,80004d06 <ag_board_main+0x736>
-    80004c2a:	7d01a683          	lw	a3,2000(gp) # 80368080 <model+0x20>
+    80004c60:	08d4f963          	bgeu	s1,a3,80004cf2 <ag_board_main+0x722>
+        if (t != graph_out && offsets[t] != UINT64_MAX && ag_runtime_bind(&runtime, t, arena + offsets[t], ag_tensor_bytes(model.tensors + t)) != 0) return -9;
+    80004c64:	04b48863          	beq	s1,a1,80004cb4 <ag_board_main+0x6e4>
+    80004c68:	000ab703          	ld	a4,0(s5)
+    80004c6c:	02049793          	slli	a5,s1,0x20
+    80004c70:	9381                	srli	a5,a5,0x20
+    80004c72:	00379613          	slli	a2,a5,0x3
+    80004c76:	9732                	add	a4,a4,a2
+    80004c78:	6318                	ld	a4,0(a4)
+    80004c7a:	03a70d63          	beq	a4,s10,80004cb4 <ag_board_main+0x6e4>
+    80004c7e:	038787b3          	mul	a5,a5,s8
+    80004c82:	7b818693          	addi	a3,gp,1976 # 80368170 <model>
+    80004c86:	6a88                	ld	a0,16(a3)
+    80004c88:	000b3c83          	ld	s9,0(s6)
+    80004c8c:	9cba                	add	s9,s9,a4
+    80004c8e:	953e                	add	a0,a0,a5
+    80004c90:	c82fb0ef          	jal	80000112 <ag_tensor_bytes>
+    80004c94:	86aa                	mv	a3,a0
+    80004c96:	8666                	mv	a2,s9
+    80004c98:	85a6                	mv	a1,s1
+    80004c9a:	00363517          	auipc	a0,0x363
+    80004c9e:	51e50513          	addi	a0,a0,1310 # 803681b8 <runtime>
+    80004ca2:	b09fb0ef          	jal	800007aa <ag_runtime_bind>
+    80004ca6:	e121                	bnez	a0,80004ce6 <ag_board_main+0x716>
+    80004ca8:	7d81a683          	lw	a3,2008(gp) # 80368190 <model+0x20>
+    80004cac:	00362597          	auipc	a1,0x362
+    80004cb0:	5145a583          	lw	a1,1300(a1) # 803671c0 <graph_out>
     for (t = 0; t < model.tensor_count; ++t)
-    80004c2e:	2485                	addiw	s1,s1,1
-    80004c30:	bf55                	j	80004be4 <ag_board_main+0x614>
-        if (node->opcode == 3) *cyc_conv += c0; else *cyc_other += c0;
-    80004c32:	0087f737          	lui	a4,0x87f
-    80004c36:	0722                	slli	a4,a4,0x8
-    80004c38:	f06a                	sd	s10,32(sp)
-    80004c3a:	ec6e                	sd	s11,24(sp)
-    80004c3c:	02870c93          	addi	s9,a4,40 # 87f028 <_stack_size+0x83f028>
-    80004c40:	02070913          	addi	s2,a4,32
-    for (node_id = 0; node_id < model.node_count; ++node_id) {
-    80004c44:	4481                	li	s1,0
-    80004c46:	8401bd97          	auipc	s11,0x8401b
-    80004c4a:	3bed8d93          	addi	s11,s11,958 # 4020004 <ag_board_node>
-        const ag_node_desc *node = model.nodes + node_id;
-    80004c4e:	05000d13          	li	s10,80
-    80004c52:	a8a9                	j	80004cac <ag_board_main+0x6dc>
-        if (node->opcode == 3) *cyc_conv += c0; else *cyc_other += c0;
-    80004c54:	000cb683          	ld	a3,0(s9)
-    80004c58:	96be                	add	a3,a3,a5
-    80004c5a:	00dcb023          	sd	a3,0(s9)
-        BOARD_LOG(uputs("node "), uint_(node_id), uputs(" op "), uint_(node->opcode), uputs(" cycles "), uint_((long)c0), uputs("\n"));
-    80004c5e:	00362517          	auipc	a0,0x362
-    80004c62:	35a50513          	addi	a0,a0,858 # 80366fb8 <ag_model_blob_end+0x2b8>
-    80004c66:	e43e                	sd	a5,8(sp)
-    80004c68:	d59fd0ef          	jal	800029c0 <ag_plat_puts>
-    80004c6c:	8562                	mv	a0,s8
-    80004c6e:	db1fd0ef          	jal	80002a1e <ag_plat_put_int>
-    80004c72:	00362517          	auipc	a0,0x362
-    80004c76:	34e50513          	addi	a0,a0,846 # 80366fc0 <ag_model_blob_end+0x2c0>
-    80004c7a:	d47fd0ef          	jal	800029c0 <ag_plat_puts>
-    80004c7e:	004ae503          	lwu	a0,4(s5)
-    80004c82:	d9dfd0ef          	jal	80002a1e <ag_plat_put_int>
-    80004c86:	00362517          	auipc	a0,0x362
-    80004c8a:	34250513          	addi	a0,a0,834 # 80366fc8 <ag_model_blob_end+0x2c8>
-    80004c8e:	d33fd0ef          	jal	800029c0 <ag_plat_puts>
-    80004c92:	67a2                	ld	a5,8(sp)
-    80004c94:	853e                	mv	a0,a5
-    80004c96:	d89fd0ef          	jal	80002a1e <ag_plat_put_int>
-    80004c9a:	00362517          	auipc	a0,0x362
-    80004c9e:	08650513          	addi	a0,a0,134 # 80366d20 <ag_model_blob_end+0x20>
-    80004ca2:	d1ffd0ef          	jal	800029c0 <ag_plat_puts>
-        if (rc != 0) {
-    80004ca6:	080b9363          	bnez	s7,80004d2c <ag_board_main+0x75c>
-    for (node_id = 0; node_id < model.node_count; ++node_id) {
-    80004caa:	2485                	addiw	s1,s1,1
-    80004cac:	7d41a783          	lw	a5,2004(gp) # 80368084 <model+0x24>
-    80004cb0:	0cf4f863          	bgeu	s1,a5,80004d80 <ag_board_main+0x7b0>
-        const ag_node_desc *node = model.nodes + node_id;
-    80004cb4:	02049c13          	slli	s8,s1,0x20
-    80004cb8:	7b018793          	addi	a5,gp,1968 # 80368060 <model>
-    80004cbc:	020c5c13          	srli	s8,s8,0x20
-    80004cc0:	0187ba83          	ld	s5,24(a5) # fc00018 <_dtcm_end+0xbbdeed0>
-    80004cc4:	03ac07b3          	mul	a5,s8,s10
-        ag_board_node = node_id;
-    80004cc8:	009da023          	sw	s1,0(s11)
-        const ag_node_desc *node = model.nodes + node_id;
-    80004ccc:	9abe                	add	s5,s5,a5
-        c0 = ag_board_cycles();
-    80004cce:	e79fd0ef          	jal	80002b46 <ag_board_cycles>
-    80004cd2:	87aa                	mv	a5,a0
-        rc = ag_runtime_execute_node(&runtime, node_id);
-    80004cd4:	85a6                	mv	a1,s1
-    80004cd6:	00363517          	auipc	a0,0x363
-    80004cda:	3d250513          	addi	a0,a0,978 # 803680a8 <runtime>
-        c0 = ag_board_cycles();
-    80004cde:	e43e                	sd	a5,8(sp)
-        rc = ag_runtime_execute_node(&runtime, node_id);
-    80004ce0:	b6bfb0ef          	jal	8000084a <ag_runtime_execute_node>
-    80004ce4:	8baa                	mv	s7,a0
-        c0 = ag_board_cycles() - c0;
-    80004ce6:	e61fd0ef          	jal	80002b46 <ag_board_cycles>
-    80004cea:	67a2                	ld	a5,8(sp)
-        if (node->opcode == 3) *cyc_conv += c0; else *cyc_other += c0;
-    80004cec:	004aa683          	lw	a3,4(s5)
-    80004cf0:	470d                	li	a4,3
-        c0 = ag_board_cycles() - c0;
-    80004cf2:	40f507b3          	sub	a5,a0,a5
-        if (node->opcode == 3) *cyc_conv += c0; else *cyc_other += c0;
-    80004cf6:	f4e69fe3          	bne	a3,a4,80004c54 <ag_board_main+0x684>
-    80004cfa:	00093683          	ld	a3,0(s2)
-    80004cfe:	96be                	add	a3,a3,a5
-    80004d00:	00d93023          	sd	a3,0(s2)
-    80004d04:	bfa9                	j	80004c5e <ag_board_main+0x68e>
+    80004cb4:	2485                	addiw	s1,s1,1
+    80004cb6:	b76d                	j	80004c60 <ag_board_main+0x690>
+    if (ag_runtime_init(&runtime, &model, tensor_data, tensor_size, model.tensor_count, BOARD_BACKEND) != 0) return -8;
+    80004cb8:	5461                	li	s0,-8
     rc = forward(&mbox->conv, &mbox->other);
     mbox->forward = ag_board_cycles() - c0;
-    80004d06:	e41fd0ef          	jal	80002b46 <ag_board_cycles>
-    80004d0a:	416507b3          	sub	a5,a0,s6
+    80004cba:	e8dfd0ef          	jal	80002b46 <ag_board_cycles>
+    80004cbe:	41250933          	sub	s2,a0,s2
+    if (rc != 0) fail(6, "forward", rc);
+    80004cc2:	f466                	sd	s9,40(sp)
+    mbox->forward = ag_board_cycles() - c0;
+    80004cc4:	0087f7b7          	lui	a5,0x87f
+    80004cc8:	ec6e                	sd	s11,24(sp)
+    80004cca:	07a2                	slli	a5,a5,0x8
+    if (rc != 0) fail(6, "forward", rc);
+    80004ccc:	8622                	mv	a2,s0
+    mbox->forward = ag_board_cycles() - c0;
+    80004cce:	0127bc23          	sd	s2,24(a5) # 87f018 <_stack_size+0x83f018>
+    if (rc != 0) fail(6, "forward", rc);
+    80004cd2:	00362597          	auipc	a1,0x362
+    80004cd6:	42e58593          	addi	a1,a1,1070 # 80367100 <ag_model_blob_end+0x340>
+    80004cda:	4519                	li	a0,6
+    80004cdc:	851ff0ef          	jal	8000452c <fail>
+    80004ce0:	7ca2                	ld	s9,40(sp)
     if (ag_runtime_bind(&runtime, graph_in, input, ag_tensor_bytes(model.tensors + graph_in)) != 0) return -9;
-    80004d0e:	545d                	li	s0,-9
+    80004ce2:	545d                	li	s0,-9
+    80004ce4:	bfd9                	j	80004cba <ag_board_main+0x6ea>
     mbox->forward = ag_board_cycles() - c0;
-    80004d10:	0087f737          	lui	a4,0x87f
-    80004d14:	f06a                	sd	s10,32(sp)
-    80004d16:	ec6e                	sd	s11,24(sp)
-    80004d18:	0722                	slli	a4,a4,0x8
-    if (rc != 0) fail(6, "forward", rc);
-    80004d1a:	8622                	mv	a2,s0
+    80004ce6:	e61fd0ef          	jal	80002b46 <ag_board_cycles>
+    80004cea:	41250933          	sub	s2,a0,s2
+    if (ag_runtime_bind(&runtime, graph_in, input, ag_tensor_bytes(model.tensors + graph_in)) != 0) return -9;
+    80004cee:	545d                	li	s0,-9
+    80004cf0:	bfd1                	j	80004cc4 <ag_board_main+0x6f4>
+    if (ag_runtime_bind(&runtime, graph_out, output, BOARD_OUT_TENSOR_BYTES) != 0) return -9;
+    80004cf2:	000bb603          	ld	a2,0(s7)
+    80004cf6:	001806b7          	lui	a3,0x180
+    80004cfa:	00363517          	auipc	a0,0x363
+    80004cfe:	4be50513          	addi	a0,a0,1214 # 803681b8 <runtime>
+    80004d02:	aa9fb0ef          	jal	800007aa <ag_runtime_bind>
+    80004d06:	fd69                	bnez	a0,80004ce0 <ag_board_main+0x710>
+        if (node->opcode == 3) *cyc_conv += c0; else *cyc_other += c0;
+    80004d08:	0087f737          	lui	a4,0x87f
+    80004d0c:	0722                	slli	a4,a4,0x8
+    80004d0e:	ec6e                	sd	s11,24(sp)
+    80004d10:	02870c93          	addi	s9,a4,40 # 87f028 <_stack_size+0x83f028>
+    80004d14:	02070a93          	addi	s5,a4,32
+    for (node_id = 0; node_id < model.node_count; ++node_id) {
+    80004d18:	4481                	li	s1,0
+    80004d1a:	8401bd97          	auipc	s11,0x8401b
+    80004d1e:	2ead8d93          	addi	s11,s11,746 # 4020004 <ag_board_node>
+        const ag_node_desc *node = model.nodes + node_id;
+    80004d22:	05000d13          	li	s10,80
+    80004d26:	a8a9                	j	80004d80 <ag_board_main+0x7b0>
+        if (node->opcode == 3) *cyc_conv += c0; else *cyc_other += c0;
+    80004d28:	000cb683          	ld	a3,0(s9)
+    80004d2c:	96be                	add	a3,a3,a5
+    80004d2e:	00dcb023          	sd	a3,0(s9)
+        BOARD_LOG(uputs("node "), uint_(node_id), uputs(" op "), uint_(node->opcode), uputs(" cycles "), uint_((long)c0), uputs("\n"));
+    80004d32:	00362517          	auipc	a0,0x362
+    80004d36:	38e50513          	addi	a0,a0,910 # 803670c0 <ag_model_blob_end+0x300>
+    80004d3a:	e43e                	sd	a5,8(sp)
+    80004d3c:	c85fd0ef          	jal	800029c0 <ag_plat_puts>
+    80004d40:	8562                	mv	a0,s8
+    80004d42:	cddfd0ef          	jal	80002a1e <ag_plat_put_int>
+    80004d46:	00362517          	auipc	a0,0x362
+    80004d4a:	38250513          	addi	a0,a0,898 # 803670c8 <ag_model_blob_end+0x308>
+    80004d4e:	c73fd0ef          	jal	800029c0 <ag_plat_puts>
+    80004d52:	004b6503          	lwu	a0,4(s6)
+    80004d56:	cc9fd0ef          	jal	80002a1e <ag_plat_put_int>
+    80004d5a:	00362517          	auipc	a0,0x362
+    80004d5e:	37650513          	addi	a0,a0,886 # 803670d0 <ag_model_blob_end+0x310>
+    80004d62:	c5ffd0ef          	jal	800029c0 <ag_plat_puts>
+    80004d66:	67a2                	ld	a5,8(sp)
+    80004d68:	853e                	mv	a0,a5
+    80004d6a:	cb5fd0ef          	jal	80002a1e <ag_plat_put_int>
+    80004d6e:	00362517          	auipc	a0,0x362
+    80004d72:	07250513          	addi	a0,a0,114 # 80366de0 <ag_model_blob_end+0x20>
+    80004d76:	c4bfd0ef          	jal	800029c0 <ag_plat_puts>
+        if (rc != 0) {
+    80004d7a:	180b9b63          	bnez	s7,80004f10 <ag_board_main+0x940>
+    for (node_id = 0; node_id < model.node_count; ++node_id) {
+    80004d7e:	2485                	addiw	s1,s1,1
+    80004d80:	7dc1a783          	lw	a5,2012(gp) # 80368194 <model+0x24>
+    80004d84:	04f4fb63          	bgeu	s1,a5,80004dda <ag_board_main+0x80a>
+        const ag_node_desc *node = model.nodes + node_id;
+    80004d88:	02049c13          	slli	s8,s1,0x20
+    80004d8c:	7b818793          	addi	a5,gp,1976 # 80368170 <model>
+    80004d90:	020c5c13          	srli	s8,s8,0x20
+    80004d94:	0187bb03          	ld	s6,24(a5)
+    80004d98:	03ac07b3          	mul	a5,s8,s10
+        ag_board_node = node_id;
+    80004d9c:	009da023          	sw	s1,0(s11)
+        const ag_node_desc *node = model.nodes + node_id;
+    80004da0:	9b3e                	add	s6,s6,a5
+        c0 = ag_board_cycles();
+    80004da2:	da5fd0ef          	jal	80002b46 <ag_board_cycles>
+    80004da6:	87aa                	mv	a5,a0
+        rc = ag_runtime_execute_node(&runtime, node_id);
+    80004da8:	85a6                	mv	a1,s1
+    80004daa:	00363517          	auipc	a0,0x363
+    80004dae:	40e50513          	addi	a0,a0,1038 # 803681b8 <runtime>
+        c0 = ag_board_cycles();
+    80004db2:	e43e                	sd	a5,8(sp)
+        rc = ag_runtime_execute_node(&runtime, node_id);
+    80004db4:	a97fb0ef          	jal	8000084a <ag_runtime_execute_node>
+    80004db8:	8baa                	mv	s7,a0
+        c0 = ag_board_cycles() - c0;
+    80004dba:	d8dfd0ef          	jal	80002b46 <ag_board_cycles>
+    80004dbe:	67a2                	ld	a5,8(sp)
+        if (node->opcode == 3) *cyc_conv += c0; else *cyc_other += c0;
+    80004dc0:	004b2683          	lw	a3,4(s6)
+    80004dc4:	470d                	li	a4,3
+        c0 = ag_board_cycles() - c0;
+    80004dc6:	40f507b3          	sub	a5,a0,a5
+        if (node->opcode == 3) *cyc_conv += c0; else *cyc_other += c0;
+    80004dca:	f4e69fe3          	bne	a3,a4,80004d28 <ag_board_main+0x758>
+    80004dce:	000ab683          	ld	a3,0(s5)
+    80004dd2:	96be                	add	a3,a3,a5
+    80004dd4:	00dab023          	sd	a3,0(s5)
+    80004dd8:	bfa9                	j	80004d32 <ag_board_main+0x762>
     mbox->forward = ag_board_cycles() - c0;
-    80004d1c:	ef1c                	sd	a5,24(a4)
-    if (rc != 0) fail(6, "forward", rc);
-    80004d1e:	00362597          	auipc	a1,0x362
-    80004d22:	2da58593          	addi	a1,a1,730 # 80366ff8 <ag_model_blob_end+0x2f8>
-    80004d26:	4519                	li	a0,6
-    80004d28:	805ff0ef          	jal	8000452c <fail>
-            uputs("node "); uint_(node_id); uputs(" opcode "); uint_(node->opcode); uputs(" failed rc="); uint_(rc); uputs("\n");
-    80004d2c:	00362517          	auipc	a0,0x362
-    80004d30:	28c50513          	addi	a0,a0,652 # 80366fb8 <ag_model_blob_end+0x2b8>
-    80004d34:	c8dfd0ef          	jal	800029c0 <ag_plat_puts>
-    80004d38:	8562                	mv	a0,s8
-    80004d3a:	ce5fd0ef          	jal	80002a1e <ag_plat_put_int>
-    80004d3e:	00362517          	auipc	a0,0x362
-    80004d42:	29a50513          	addi	a0,a0,666 # 80366fd8 <ag_model_blob_end+0x2d8>
-    80004d46:	c7bfd0ef          	jal	800029c0 <ag_plat_puts>
-    80004d4a:	004ae503          	lwu	a0,4(s5)
-            return -10;
-    80004d4e:	5459                	li	s0,-10
-            uputs("node "); uint_(node_id); uputs(" opcode "); uint_(node->opcode); uputs(" failed rc="); uint_(rc); uputs("\n");
-    80004d50:	ccffd0ef          	jal	80002a1e <ag_plat_put_int>
-    80004d54:	00362517          	auipc	a0,0x362
-    80004d58:	29450513          	addi	a0,a0,660 # 80366fe8 <ag_model_blob_end+0x2e8>
-    80004d5c:	c65fd0ef          	jal	800029c0 <ag_plat_puts>
-    80004d60:	855e                	mv	a0,s7
-    80004d62:	cbdfd0ef          	jal	80002a1e <ag_plat_put_int>
-    80004d66:	00362517          	auipc	a0,0x362
-    80004d6a:	fba50513          	addi	a0,a0,-70 # 80366d20 <ag_model_blob_end+0x20>
-    80004d6e:	c53fd0ef          	jal	800029c0 <ag_plat_puts>
-            return -10;
-    80004d72:	7d02                	ld	s10,32(sp)
-    80004d74:	6de2                	ld	s11,24(sp)
-    mbox->forward = ag_board_cycles() - c0;
-    80004d76:	dd1fd0ef          	jal	80002b46 <ag_board_cycles>
-    80004d7a:	416507b3          	sub	a5,a0,s6
-    if (rc != 0) fail(6, "forward", rc);
-    80004d7e:	bf49                	j	80004d10 <ag_board_main+0x740>
-    mbox->forward = ag_board_cycles() - c0;
-    80004d80:	dc7fd0ef          	jal	80002b46 <ag_board_cycles>
-    80004d84:	0087f4b7          	lui	s1,0x87f
-    80004d88:	04a2                	slli	s1,s1,0x8
-    80004d8a:	416507b3          	sub	a5,a0,s6
+    80004dda:	d6dfd0ef          	jal	80002b46 <ag_board_cycles>
+    80004dde:	0087f4b7          	lui	s1,0x87f
+    80004de2:	04a2                	slli	s1,s1,0x8
+    80004de4:	412507b3          	sub	a5,a0,s2
     mbox->out_tensor = (uint64_t)(uintptr_t)ag_plat_ame_addr(tensor_data[graph_out]);   /* DDR view */
-    80004d8e:	00362717          	auipc	a4,0x362
-    80004d92:	32a76703          	lwu	a4,810(a4) # 803670b8 <graph_out>
+    80004de8:	00362717          	auipc	a4,0x362
+    80004dec:	3d876703          	lwu	a4,984(a4) # 803671c0 <graph_out>
     mbox->forward = ag_board_cycles() - c0;
-    80004d96:	ec9c                	sd	a5,24(s1)
+    80004df0:	ec9c                	sd	a5,24(s1)
     mbox->out_tensor = (uint64_t)(uintptr_t)ag_plat_ame_addr(tensor_data[graph_out]);   /* DDR view */
-    80004d98:	0009b783          	ld	a5,0(s3)
-    80004d9c:	070e                	slli	a4,a4,0x3
-    80004d9e:	97ba                	add	a5,a5,a4
-    80004da0:	6388                	ld	a0,0(a5)
-    80004da2:	dc5fd0ef          	jal	80002b66 <ag_plat_ame_addr>
+    80004df2:	0009b783          	ld	a5,0(s3)
+    80004df6:	070e                	slli	a4,a4,0x3
+    80004df8:	97ba                	add	a5,a5,a4
+    80004dfa:	6388                	ld	a0,0(a5)
+    80004dfc:	d6bfd0ef          	jal	80002b66 <ag_plat_ame_addr>
     mbox->out_bytes = tensor_size[graph_out];
-    80004da6:	00362717          	auipc	a4,0x362
-    80004daa:	31276703          	lwu	a4,786(a4) # 803670b8 <graph_out>
-    80004dae:	000a3783          	ld	a5,0(s4)
+    80004e00:	00362717          	auipc	a4,0x362
+    80004e04:	3c076703          	lwu	a4,960(a4) # 803671c0 <graph_out>
+    80004e08:	000a3783          	ld	a5,0(s4)
     mbox->out_tensor = (uint64_t)(uintptr_t)ag_plat_ame_addr(tensor_data[graph_out]);   /* DDR view */
-    80004db2:	fc88                	sd	a0,56(s1)
+    80004e0c:	fc88                	sd	a0,56(s1)
     mbox->out_bytes = tensor_size[graph_out];
-    80004db4:	070e                	slli	a4,a4,0x3
-    80004db6:	97ba                	add	a5,a5,a4
-    80004db8:	639c                	ld	a5,0(a5)
+    80004e0e:	070e                	slli	a4,a4,0x3
+    80004e10:	97ba                	add	a5,a5,a4
+    80004e12:	639c                	ld	a5,0(a5)
     BOARD_LOG(uputs("output tensor "), uhex(mbox->out_tensor), uputs(" bytes "), uint_((long)mbox->out_bytes), uputs("\n"));
-    80004dba:	00362517          	auipc	a0,0x362
-    80004dbe:	24650513          	addi	a0,a0,582 # 80367000 <ag_model_blob_end+0x300>
+    80004e14:	00362517          	auipc	a0,0x362
+    80004e18:	2f450513          	addi	a0,a0,756 # 80367108 <ag_model_blob_end+0x348>
     mbox->out_bytes = tensor_size[graph_out];
-    80004dc2:	e0bc                	sd	a5,64(s1)
+    80004e1c:	e0bc                	sd	a5,64(s1)
     BOARD_LOG(uputs("output tensor "), uhex(mbox->out_tensor), uputs(" bytes "), uint_((long)mbox->out_bytes), uputs("\n"));
-    80004dc4:	bfdfd0ef          	jal	800029c0 <ag_plat_puts>
-    80004dc8:	7c88                	ld	a0,56(s1)
-    80004dca:	e96ff0ef          	jal	80004460 <uhex>
-    80004dce:	00362517          	auipc	a0,0x362
-    80004dd2:	24250513          	addi	a0,a0,578 # 80367010 <ag_model_blob_end+0x310>
-    80004dd6:	bebfd0ef          	jal	800029c0 <ag_plat_puts>
-    80004dda:	60a8                	ld	a0,64(s1)
-    80004ddc:	c43fd0ef          	jal	80002a1e <ag_plat_put_int>
-    80004de0:	00362517          	auipc	a0,0x362
-    80004de4:	f4050513          	addi	a0,a0,-192 # 80366d20 <ag_model_blob_end+0x20>
-    80004de8:	bd9fd0ef          	jal	800029c0 <ag_plat_puts>
+    80004e1e:	ba3fd0ef          	jal	800029c0 <ag_plat_puts>
+    80004e22:	7c88                	ld	a0,56(s1)
+    80004e24:	e3cff0ef          	jal	80004460 <uhex>
+    80004e28:	00362517          	auipc	a0,0x362
+    80004e2c:	2f050513          	addi	a0,a0,752 # 80367118 <ag_model_blob_end+0x358>
+    80004e30:	b91fd0ef          	jal	800029c0 <ag_plat_puts>
+    80004e34:	60a8                	ld	a0,64(s1)
+    80004e36:	be9fd0ef          	jal	80002a1e <ag_plat_put_int>
+    80004e3a:	00362517          	auipc	a0,0x362
+    80004e3e:	fa650513          	addi	a0,a0,-90 # 80366de0 <ag_model_blob_end+0x20>
+    80004e42:	b7ffd0ef          	jal	800029c0 <ag_plat_puts>
     set_stage(AG_STAGE_POST);
-    80004dec:	451d                	li	a0,7
-    80004dee:	ebcff0ef          	jal	800044aa <set_stage>
+    80004e46:	451d                	li	a0,7
+    80004e48:	e62ff0ef          	jal	800044aa <set_stage>
     c0 = ag_board_cycles();
-    80004df2:	d55fd0ef          	jal	80002b46 <ag_board_cycles>
+    80004e4c:	cfbfd0ef          	jal	80002b46 <ag_board_cycles>
     post_process(frame_out, tensor_data[graph_out], BOARD_FRAME_BYTES);
-    80004df6:	00362717          	auipc	a4,0x362
-    80004dfa:	2c276703          	lwu	a4,706(a4) # 803670b8 <graph_out>
-    80004dfe:	0009b783          	ld	a5,0(s3)
+    80004e50:	00362717          	auipc	a4,0x362
+    80004e54:	37076703          	lwu	a4,880(a4) # 803671c0 <graph_out>
+    80004e58:	0009b783          	ld	a5,0(s3)
     ag_rvv_bf16_to_u8(dst, src, n);
-    80004e02:	000c0637          	lui	a2,0xc0
+    80004e5c:	000c0637          	lui	a2,0xc0
     post_process(frame_out, tensor_data[graph_out], BOARD_FRAME_BYTES);
-    80004e06:	070e                	slli	a4,a4,0x3
-    80004e08:	97ba                	add	a5,a5,a4
+    80004e60:	070e                	slli	a4,a4,0x3
+    80004e62:	97ba                	add	a5,a5,a4
     ag_rvv_bf16_to_u8(dst, src, n);
-    80004e0a:	638c                	ld	a1,0(a5)
+    80004e64:	638c                	ld	a1,0(a5)
     c0 = ag_board_cycles();
-    80004e0c:	892a                	mv	s2,a0
+    80004e66:	892a                	mv	s2,a0
     ag_rvv_bf16_to_u8(dst, src, n);
-    80004e0e:	10100537          	lui	a0,0x10100
-    80004e12:	ddcff0ef          	jal	800043ee <ag_rvv_bf16_to_u8>
+    80004e68:	10100537          	lui	a0,0x10100
+    80004e6c:	d82ff0ef          	jal	800043ee <ag_rvv_bf16_to_u8>
     mbox->post = ag_board_cycles() - c0;
-    80004e16:	d31fd0ef          	jal	80002b46 <ag_board_cycles>
-    80004e1a:	412507b3          	sub	a5,a0,s2
-    80004e1e:	f89c                	sd	a5,48(s1)
+    80004e70:	cd7fd0ef          	jal	80002b46 <ag_board_cycles>
+    80004e74:	412507b3          	sub	a5,a0,s2
+    80004e78:	f89c                	sd	a5,48(s1)
     ag_board_stage = AG_STAGE_DONE;
     uputs("cycles pre="); uint_((long)mbox->pre); uputs(" forward="); uint_((long)mbox->forward);
-    80004e20:	00362517          	auipc	a0,0x362
-    80004e24:	1f850513          	addi	a0,a0,504 # 80367018 <ag_model_blob_end+0x318>
+    80004e7a:	00362517          	auipc	a0,0x362
+    80004e7e:	2a650513          	addi	a0,a0,678 # 80367120 <ag_model_blob_end+0x360>
     ag_board_stage = AG_STAGE_DONE;
-    80004e28:	47a1                	li	a5,8
-    80004e2a:	c01c                	sw	a5,0(s0)
+    80004e82:	47a1                	li	a5,8
+    80004e84:	c01c                	sw	a5,0(s0)
     uputs("cycles pre="); uint_((long)mbox->pre); uputs(" forward="); uint_((long)mbox->forward);
-    80004e2c:	b95fd0ef          	jal	800029c0 <ag_plat_puts>
-    80004e30:	6888                	ld	a0,16(s1)
-    80004e32:	bedfd0ef          	jal	80002a1e <ag_plat_put_int>
-    80004e36:	00362517          	auipc	a0,0x362
-    80004e3a:	1f250513          	addi	a0,a0,498 # 80367028 <ag_model_blob_end+0x328>
-    80004e3e:	b83fd0ef          	jal	800029c0 <ag_plat_puts>
-    80004e42:	6c88                	ld	a0,24(s1)
-    80004e44:	bdbfd0ef          	jal	80002a1e <ag_plat_put_int>
-    uputs(" conv="); uint_((long)mbox->conv); uputs(" other="); uint_((long)mbox->other);
-    80004e48:	00362517          	auipc	a0,0x362
-    80004e4c:	1f050513          	addi	a0,a0,496 # 80367038 <ag_model_blob_end+0x338>
-    80004e50:	b71fd0ef          	jal	800029c0 <ag_plat_puts>
-    80004e54:	7088                	ld	a0,32(s1)
-    80004e56:	bc9fd0ef          	jal	80002a1e <ag_plat_put_int>
-    80004e5a:	00362517          	auipc	a0,0x362
-    80004e5e:	1e650513          	addi	a0,a0,486 # 80367040 <ag_model_blob_end+0x340>
-    80004e62:	b5ffd0ef          	jal	800029c0 <ag_plat_puts>
-    80004e66:	7488                	ld	a0,40(s1)
-    80004e68:	bb7fd0ef          	jal	80002a1e <ag_plat_put_int>
-    uputs(" post="); uint_((long)mbox->post); uputs(" cpu_hz="); uint_(BOARD_CPU_HZ); uputs("\ndone\n");
-    80004e6c:	00362517          	auipc	a0,0x362
-    80004e70:	1dc50513          	addi	a0,a0,476 # 80367048 <ag_model_blob_end+0x348>
-    80004e74:	b4dfd0ef          	jal	800029c0 <ag_plat_puts>
-    80004e78:	7888                	ld	a0,48(s1)
-    80004e7a:	ba5fd0ef          	jal	80002a1e <ag_plat_put_int>
-    80004e7e:	00362517          	auipc	a0,0x362
-    80004e82:	1d250513          	addi	a0,a0,466 # 80367050 <ag_model_blob_end+0x350>
     80004e86:	b3bfd0ef          	jal	800029c0 <ag_plat_puts>
-    80004e8a:	02626537          	lui	a0,0x2626
-    80004e8e:	a0050513          	addi	a0,a0,-1536 # 2625a00 <_stack_size+0x25e5a00>
-    80004e92:	b8dfd0ef          	jal	80002a1e <ag_plat_put_int>
-    80004e96:	00362517          	auipc	a0,0x362
-    80004e9a:	1ca50513          	addi	a0,a0,458 # 80367060 <ag_model_blob_end+0x360>
-    80004e9e:	b23fd0ef          	jal	800029c0 <ag_plat_puts>
+    80004e8a:	6888                	ld	a0,16(s1)
+    80004e8c:	b93fd0ef          	jal	80002a1e <ag_plat_put_int>
+    80004e90:	00362517          	auipc	a0,0x362
+    80004e94:	2a050513          	addi	a0,a0,672 # 80367130 <ag_model_blob_end+0x370>
+    80004e98:	b29fd0ef          	jal	800029c0 <ag_plat_puts>
+    80004e9c:	6c88                	ld	a0,24(s1)
+    80004e9e:	b81fd0ef          	jal	80002a1e <ag_plat_put_int>
+    uputs(" conv="); uint_((long)mbox->conv); uputs(" other="); uint_((long)mbox->other);
+    80004ea2:	00362517          	auipc	a0,0x362
+    80004ea6:	29e50513          	addi	a0,a0,670 # 80367140 <ag_model_blob_end+0x380>
+    80004eaa:	b17fd0ef          	jal	800029c0 <ag_plat_puts>
+    80004eae:	7088                	ld	a0,32(s1)
+    80004eb0:	b6ffd0ef          	jal	80002a1e <ag_plat_put_int>
+    80004eb4:	00362517          	auipc	a0,0x362
+    80004eb8:	29450513          	addi	a0,a0,660 # 80367148 <ag_model_blob_end+0x388>
+    80004ebc:	b05fd0ef          	jal	800029c0 <ag_plat_puts>
+    80004ec0:	7488                	ld	a0,40(s1)
+    80004ec2:	b5dfd0ef          	jal	80002a1e <ag_plat_put_int>
+    uputs(" post="); uint_((long)mbox->post); uputs(" cpu_hz="); uint_(BOARD_CPU_HZ); uputs("\ndone\n");
+    80004ec6:	00362517          	auipc	a0,0x362
+    80004eca:	28a50513          	addi	a0,a0,650 # 80367150 <ag_model_blob_end+0x390>
+    80004ece:	af3fd0ef          	jal	800029c0 <ag_plat_puts>
+    80004ed2:	7888                	ld	a0,48(s1)
+    80004ed4:	b4bfd0ef          	jal	80002a1e <ag_plat_put_int>
+    80004ed8:	00362517          	auipc	a0,0x362
+    80004edc:	28050513          	addi	a0,a0,640 # 80367158 <ag_model_blob_end+0x398>
+    80004ee0:	ae1fd0ef          	jal	800029c0 <ag_plat_puts>
+    80004ee4:	02626537          	lui	a0,0x2626
+    80004ee8:	a0050513          	addi	a0,a0,-1536 # 2625a00 <_stack_size+0x25e5a00>
+    80004eec:	b33fd0ef          	jal	80002a1e <ag_plat_put_int>
+    80004ef0:	00362517          	auipc	a0,0x362
+    80004ef4:	27850513          	addi	a0,a0,632 # 80367168 <ag_model_blob_end+0x3a8>
+    80004ef8:	ac9fd0ef          	jal	800029c0 <ag_plat_puts>
     mb_status(ST_DONE);
-    80004ea2:	b0000537          	lui	a0,0xb0000
-    80004ea6:	0511                	addi	a0,a0,4 # ffffffffb0000004 <_end+0xffffffff2fc57f24>
-    80004ea8:	e4eff0ef          	jal	800044f6 <mb_status>
+    80004efc:	b0000537          	lui	a0,0xb0000
+    80004f00:	0511                	addi	a0,a0,4 # ffffffffb0000004 <_end+0xffffffff2fc57e14>
+    80004f02:	df4ff0ef          	jal	800044f6 <mb_status>
     for (;;) __asm__ volatile("wfi");
-    80004eac:	10500073          	wfi
-    80004eb0:	10500073          	wfi
-    80004eb4:	bfe5                	j	80004eac <ag_board_main+0x8dc>
-    if (ag_runtime_bind(&runtime, graph_in, input, ag_tensor_bytes(model.tensors + graph_in)) != 0) return -9;
-    80004eb6:	545d                	li	s0,-9
-    80004eb8:	bd7d                	j	80004d76 <ag_board_main+0x7a6>
-    if (ag_runtime_init(&runtime, &model, tensor_data, tensor_size, model.tensor_count, BOARD_BACKEND) != 0) return -8;
-    80004eba:	5461                	li	s0,-8
-    80004ebc:	bd6d                	j	80004d76 <ag_board_main+0x7a6>
+    80004f06:	10500073          	wfi
+    80004f0a:	10500073          	wfi
+    80004f0e:	bfe5                	j	80004f06 <ag_board_main+0x936>
+            uputs("node "); uint_(node_id); uputs(" opcode "); uint_(node->opcode); uputs(" failed rc="); uint_(rc); uputs("\n");
+    80004f10:	00362517          	auipc	a0,0x362
+    80004f14:	1b050513          	addi	a0,a0,432 # 803670c0 <ag_model_blob_end+0x300>
+    80004f18:	aa9fd0ef          	jal	800029c0 <ag_plat_puts>
+    80004f1c:	8562                	mv	a0,s8
+    80004f1e:	b01fd0ef          	jal	80002a1e <ag_plat_put_int>
+    80004f22:	00362517          	auipc	a0,0x362
+    80004f26:	1be50513          	addi	a0,a0,446 # 803670e0 <ag_model_blob_end+0x320>
+    80004f2a:	a97fd0ef          	jal	800029c0 <ag_plat_puts>
+    80004f2e:	004b6503          	lwu	a0,4(s6)
+            return -10;
+    80004f32:	5459                	li	s0,-10
+            uputs("node "); uint_(node_id); uputs(" opcode "); uint_(node->opcode); uputs(" failed rc="); uint_(rc); uputs("\n");
+    80004f34:	aebfd0ef          	jal	80002a1e <ag_plat_put_int>
+    80004f38:	00362517          	auipc	a0,0x362
+    80004f3c:	1b850513          	addi	a0,a0,440 # 803670f0 <ag_model_blob_end+0x330>
+    80004f40:	a81fd0ef          	jal	800029c0 <ag_plat_puts>
+    80004f44:	855e                	mv	a0,s7
+    80004f46:	ad9fd0ef          	jal	80002a1e <ag_plat_put_int>
+    80004f4a:	00362517          	auipc	a0,0x362
+    80004f4e:	e9650513          	addi	a0,a0,-362 # 80366de0 <ag_model_blob_end+0x20>
+    80004f52:	a6ffd0ef          	jal	800029c0 <ag_plat_puts>
+            return -10;
+    80004f56:	7ca2                	ld	s9,40(sp)
+    80004f58:	6de2                	ld	s11,24(sp)
+    80004f5a:	b385                	j	80004cba <ag_board_main+0x6ea>
 
 Disassembly of section .itcm:
 
@@ -10173,7 +10232,7 @@ ITCM static void tdec(uint64_t v) {
 ITCM static void tdec(uint64_t v) {
  4000304:	7179                	addi	sp,sp,-48
     do { buf[--pos] = (char)('0' + v % 10); v /= 10; } while (v);
- 4000306:	ccd78793          	addi	a5,a5,-819 # ffffffffcccccccd <_end+0xffffffff4c924bed>
+ 4000306:	ccd78793          	addi	a5,a5,-819 # ffffffffcccccccd <_end+0xffffffff4c924add>
  400030a:	02079813          	slli	a6,a5,0x20
  400030e:	00810313          	addi	t1,sp,8
 ITCM static void tdec(uint64_t v) {
@@ -10305,7 +10364,7 @@ ITCM static unsigned region_of(uint64_t a) {
  400041a:	fff54513          	not	a0,a0
     return 13;
  400041e:	00c53533          	sltu	a0,a0,a2
- 4000422:	0531                	addi	a0,a0,12 # ffffffff8000000c <_end+0xfffffffeffc57f2c>
+ 4000422:	0531                	addi	a0,a0,12 # ffffffff8000000c <_end+0xfffffffeffc57e1c>
  4000424:	8082                	ret
     if (a < 0x1000) return 0;
  4000426:	4501                	li	a0,0
@@ -10384,7 +10443,7 @@ ITCM static void mbox_report(const ag_trap_frame_t *f) {
     t[0] = f->mcause; t[1] = f->mepc; t[2] = f->mtval; t[3] = f->mstatus; t[4] = f->x[1]; t[5] = f->x[2];
  40004ae:	0422                	slli	s0,s0,0x8
     *(volatile uint32_t *)(uintptr_t)BOARD_MBOX_ADDR = BOARD_ST_TRAP;
- 40004b0:	0ff78793          	addi	a5,a5,255 # ffffffffb00000ff <_end+0xffffffff2fc5801f>
+ 40004b0:	0ff78793          	addi	a5,a5,255 # ffffffffb00000ff <_end+0xffffffff2fc57f0f>
  40004b4:	c01c                	sw	a5,0(s0)
     mbox_writeback();
 }

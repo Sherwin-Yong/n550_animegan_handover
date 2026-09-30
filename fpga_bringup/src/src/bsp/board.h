@@ -60,18 +60,21 @@
 #define BOARD_CLP_INPUT 0x0           /* input frame */
 #define BOARD_CLP_OUTPUT 0x100000     /* result frame */
 #define BOARD_CLP_GRAPH_IN 0x200000   /* dense bf16 graph input tensor */
-#define BOARD_CLP_ARENA 0x400000      /* activation arena, conv scratch at offset 0 */
+#define BOARD_CLP_OUT_TENSOR 0x400000 /* dense bf16 graph output tensor, 2 MB slot at a fixed host address */
+#define BOARD_CLP_ARENA 0x600000      /* activation arena, conv scratch at offset 0 */
 /* Back-door (PCIe) hand-over, tests/board_backdoor.c: while the CPU is held in reset
  * the host writes the program (raw binary at the DRAM base), BOARD_HOST_MAGIC at
  * BOARD_MBOX_MAGIC and one frame at BOARD_INPUT_ADDR, then releases reset, polls the
- * mailbox status and reads the result frame at BOARD_OUTPUT_ADDR (DDR view).
- * Frames are 512x512 RGB UINT8. */
+ * mailbox status and reads the result frame at BOARD_OUTPUT_ADDR and the graph output
+ * tensor at BOARD_OUT_TENSOR_ADDR (DDR view). Frames are 512x512 RGB UINT8. */
 #define BOARD_MBOX_ADDR 0x87F00000    /* 4 KB mailbox (status, cycles, trap, stage) */
 #define BOARD_MBOX_MAGIC 0x87F00080   /* host-written word, echoed at +0x84 */
 #define BOARD_HOST_MAGIC 0x5A5AC3C3
 #define BOARD_INPUT_ADDR 0xF0000000   /* BOARD_CLP_DDR + BOARD_CLP_INPUT */
 #define BOARD_OUTPUT_ADDR 0xF0100000  /* BOARD_CLP_DDR + BOARD_CLP_OUTPUT */
 #define BOARD_FRAME_BYTES 786432
+#define BOARD_OUT_TENSOR_ADDR 0xF0400000 /* BOARD_CLP_DDR + BOARD_CLP_OUT_TENSOR, repeated at mailbox +0x38 */
+#define BOARD_OUT_TENSOR_BYTES 1572864   /* bf16 [1,512,512,3], repeated at mailbox +0x40 */
 #define BOARD_MBOX_TRAP 0x87F00048    /* trap: mcause, mepc, mtval, mstatus, ra, sp (u64) */
 #define BOARD_MBOX_STAGE 0x87F00078   /* u32 stage, u32 node (include/animegan/board_log.h) */
 #define BOARD_ST_TRAP 0xB00000FF      /* mailbox status after a trap */
