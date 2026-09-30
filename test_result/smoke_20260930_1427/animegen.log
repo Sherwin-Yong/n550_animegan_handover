@@ -1,0 +1,92 @@
+animeganv3 backdoor S2C N550+AMU backend=ame bf16 debug
+pcie magic 0x000000005a5ac3c3 ok
+stage 2 cycle 418707
+clp self-test ok
+stage 3 cycle 571835
+model nodes=79 tensors=149 arena=67708160 at 0x00000000f0400000 scratch=196608
+stage 4 cycle 1049095
+stage 5 cycle 3328127
+stage 6 cycle 4431207
+node 0 op 100 cycles 2955492
+node 1 op 3 cycles 27691791
+node 2 op 100 cycles 991575
+node 3 op 3 cycles 6799711
+node 4 op 100 cycles 20187
+node 5 op 3 cycles 9533607
+node 6 op 100 cycles 40505
+node 7 op 3 cycles 11115685
+node 8 op 100 cycles 504882
+node 9 op 3 cycles 3423310
+node 10 op 100 cycles 20721
+node 11 op 3 cycles 5274303
+node 12 op 100 cycles 40777
+node 13 op 3 cycles 6713548
+node 14 op 100 cycles 267044
+node 15 op 3 cycles 1917113
+node 16 op 100 cycles 21057
+node 17 op 3 cycles 1796402
+node 18 op 100 cycles 21027
+node 19 op 3 cycles 1795247
+node 20 op 3 cycles 588640
+node 21 op 100 cycles 10630
+node 22 op 3 cycles 762922
+node 23 op 3 cycles 792372
+node 24 op 0 cycles 659714
+node 25 op 3 cycles 588592
+node 26 op 100 cycles 10727
+node 27 op 3 cycles 763074
+node 28 op 3 cycles 792070
+node 29 op 0 cycles 659599
+node 30 op 3 cycles 588468
+node 31 op 100 cycles 10635
+node 32 op 3 cycles 763022
+node 33 op 3 cycles 792132
+node 34 op 0 cycles 659537
+node 35 op 3 cycles 588488
+node 36 op 100 cycles 10612
+node 37 op 3 cycles 763074
+node 38 op 3 cycles 792060
+node 39 op 0 cycles 659508
+node 40 op 3 cycles 588484
+node 41 op 100 cycles 10645
+node 42 op 3 cycles 762597
+node 43 op 3 cycles 792042
+node 44 op 0 cycles 659550
+node 45 op 3 cycles 588385
+node 46 op 100 cycles 10652
+node 47 op 3 cycles 762870
+node 48 op 3 cycles 792104
+node 49 op 0 cycles 659592
+node 50 op 23 cycles 2123901
+node 51 op 100 cycles 40840
+node 52 op 3 cycles 6713513
+node 53 op 0 cycles 2191593
+node 54 op 100 cycles 40788
+node 55 op 3 cycles 6713629
+node 56 op 100 cycles 40762
+node 57 op 3 cycles 6713637
+node 58 op 23 cycles 8483326
+node 59 op 100 cycles 80329
+node 60 op 3 cycles 14272552
+node 61 op 0 cycles 4382119
+node 62 op 100 cycles 40363
+node 63 op 3 cycles 11116528
+node 64 op 100 cycles 40323
+node 65 op 3 cycles 11117959
+node 66 op 23 cycles 16959293
+node 67 op 100 cycles 80068
+node 68 op 3 cycles 24709414
+node 69 op 0 cycles 8763671
+node 70 op 100 cycles 40233
+node 71 op 3 cycles 20875157
+node 72 op 100 cycles 58264
+node 73 op 3 cycles 23644830
+node 74 op 3 cycles 13411325
+node 75 op 200 cycles 23038654
+node 76 op 100 cycles 40289
+node 77 op 3 cycles 16329001
+node 78 op 28 cycles 5200223
+output tensor 0x00000000f0430000 bytes 1572864
+stage 7 cycle 337941399
+cycles pre=1022497 forward=333238458 conv=244539658 other=80549707 post=549751 cpu_hz=40000000
+done
