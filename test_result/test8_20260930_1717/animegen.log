@@ -1,0 +1,5 @@
+animeganv3 backdoor S2C N550+AMU backend=ame bf16 release
+pcie magic 0x000000005a5ac3c3 ok
+clp self-test ok
+cycles pre=1022426 forward=325120619 conv=244542751 other=80564265 post=549688 cpu_hz=40000000
+done
