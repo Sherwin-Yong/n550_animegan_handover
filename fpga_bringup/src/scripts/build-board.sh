@@ -52,7 +52,7 @@ end=$(sym _end)
     echo "  input    512x512 RGB UINT8 frame ($(addr BOARD_FRAME_BYTES) B) -> $(addr BOARD_INPUT_ADDR)"
     echo "  output   read $(addr BOARD_FRAME_BYTES) B at $(addr BOARD_OUTPUT_ADDR)"
     echo "  mailbox  $(addr BOARD_MBOX_ADDR): status 0xB0000004 done / 0xB00000EE error (code +0x04) / 0xB00000FF trap (+0x48)"
-    echo "  tensor   read the bf16 graph output tensor at the mailbox +0x38 address, +0x40 bytes"
+    echo "  tensor   read $(addr BOARD_OUT_TENSOR_BYTES) B bf16 graph output tensor (dense NHWC) at $(addr BOARD_OUT_TENSOR_ADDR)  (mailbox +0x38/+0x40 repeat address and size)"
     echo "  order: hold reset; write program, 0 to the status word $(addr BOARD_MBOX_ADDR), magic, input -> release reset -> poll mailbox status -> read output, output tensor and mailbox"
 } > "${elf%.elf}.txt"
 "${CC%gcc}size" "$elf"
