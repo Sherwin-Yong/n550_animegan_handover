@@ -23,7 +23,12 @@ typedef enum {
     AG_BACKEND_AME = 1
 } ag_backend;
 
-/* flags: 1 constant, 2 graph input, 4 graph output, 8 alias of the node's first input (padded buffer) */
+/* flags: 1 constant, 2 graph input, 4 graph output, 8 alias of the node's first input (padded buffer),
+ * AG_TENSOR_LANE_PACK: blocked tensor (C <= 32, no pad border) whose lanes beyond C carry the
+ * neighbourhood for a K-packed convolution: lane (dy*KW + dx)*C + c of pixel (y, x) = lane c of pixel
+ * (y+dy, x+dx) for dy < R, dx < KW, 0 outside the H x W image; reserved = R | KW << 8. The conv
+ * reading it has options.integers[6] = id + 1 of its repacked weights (tools/model_pack.py). */
+#define AG_TENSOR_LANE_PACK (1u << 16)
 typedef struct {
     uint32_t id;
     uint32_t type;
@@ -126,8 +131,21 @@ size_t ag_tensor_elements(const ag_tensor_desc *tensor);   /* logical element co
 size_t ag_tensor_bytes(const ag_tensor_desc *tensor);      /* storage bytes (blocked, padded) */
 int ag_execute_node_scalar(const ag_model *model, uint32_t node_id, void *const tensor_data[]);
 
+/* Statistics of the logical elements of a rank-4 bf16 tensor (blocked: lanes < C
+ * of the interior; dense: all): sum and sum of |x| accumulated in double, max |x|.
+ * One definition, two implementations: scalar (src/ops_bf16.c) and, in AG_RVV
+ * builds, RVV (src/ops_rvv.c; the board's tensors are RVV-only). The board's
+ * second forward and tests/forward --stats print them per node for
+ * tools/check.py boardlog. */
+typedef struct {
+    double sum, abs_sum;
+    float max_abs;
+} ag_stats;
+void ag_tensor_stats(const ag_tensor_desc *tensor, const void *data, ag_stats *st);
+
 /* scalar kernels (reference semantics, every build) */
 int ag_mirror_pad(const ag_model *model, const ag_node_desc *node, const int32_t *inputs, const int32_t *outputs, void *const tensor_data[]);
+void ag_fill_lane_pack(const ag_tensor_desc *tensor, uint16_t *data);   /* lanes beyond C from lanes < C (AG_TENSOR_LANE_PACK) */
 int ag_conv2d_scalar(const ag_model *model, const ag_node_desc *node, const int32_t *inputs, const int32_t *outputs, void *const tensor_data[]);
 int ag_add(const ag_model *model, const ag_node_desc *node, const int32_t *inputs, const int32_t *outputs, void *const tensor_data[]);
 int ag_resize_bilinear(const ag_model *model, const ag_node_desc *node, const int32_t *inputs, const int32_t *outputs, void *const tensor_data[]);
@@ -156,12 +174,23 @@ int ag_gemm_bf16_ame(float *c, long c_stride, const uint16_t *a, long a_stride,
                      const uint16_t *b, long b_stride, int M, int K, int N);
 int ag_conv2d_ame(const ag_model *model, const ag_node_desc *node, const int32_t *inputs, const int32_t *outputs,
                   void *const tensor_data[], void *scratch, size_t scratch_size);
-size_t ag_conv2d_ame_scratch(const ag_model *model, const ag_node_desc *node);
+extern int ag_conv_overlap;   /* 1 (default): epilogue of a tile group overlaps the next group's matrix steps */
+/* AME conv workspace (src/conv_ame.c checks it): two sets of 3 C blocks of up to
+ * 128 x 128 fp32; ag_node_scratch_bytes uses it in every build, so the host plans
+ * the board's arena too (tests/runtime_test --plan) */
+#define AG_CONV_AME_SCRATCH ((size_t)2 * 3 * 128 * 128 * 4)
 int ag_execute_node_rvv(const ag_model *model, const ag_node_desc *node,
                         const int32_t *inputs, const int32_t *outputs, void *const tensor_data[]);
-/* RVV helpers (AG_RVV builds): convolution epilogue over one tile of fp32 C rows, board frame conversions */
-void ag_conv_epilogue_rvv(uint16_t *y_row0, size_t plane_elems, const float *cbuf, int32_t rows, int32_t KO, int32_t blocks,
-                          const float *bias, int fused, float alpha);
+/* RVV helpers (AG_RVV builds): convolution epilogue over fp32 C rows (state
+ * prepared once per node, KO <= 128), board frame conversions */
+typedef struct {
+    float bias[8 * AG_BLOCK];       /* bias, zero beyond KO; KO = 32: repeated for 8 pixels */
+    size_t plane_elems;
+    int32_t KO, blocks, mode, wide; /* mode: LeakyReLU form; wide: KO = 32 m8 path */
+    float alpha;
+} ag_conv_epi;
+void ag_conv_epilogue_rvv_init(ag_conv_epi *e, const ag_conv_geom *g);
+void ag_conv_epilogue_rvv(const ag_conv_epi *e, uint16_t *y_row0, const float *cbuf, int32_t rows);
 void ag_rvv_u8_to_bf16(uint16_t *dst, const uint8_t *src, size_t n);
 void ag_rvv_bf16_to_u8(uint8_t *dst, const uint16_t *src, size_t n);
 

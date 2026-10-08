@@ -63,10 +63,13 @@ park:
     j       park
 
 /* ---- trap entry (ITCM). ag_trap_frame (DTCM, src/bsp/trap.c): x[0..31] at
- * 8*i, mcause 256, mepc 264, mtval 272, mstatus 280. A trap while the first is
- * being handled (ag_trap_depth != 0) prints one line and halts, keeping the
- * first context. ag_trap_dispatch returns 1 to retry (registers restored, mret)
- * or 0 to halt. ---- */
+ * 8*i, mcause 256, mepc 264, mtval 272, mstatus 280. ag_trap_dispatch returns 1
+ * to resume (mepc and registers restored from the frame, mret: an illegal
+ * instruction retry, or past the ebreak of the trap self-test) or 0 to halt.
+ * A trap while the first is being handled (ag_trap_depth 1) keeps the first
+ * context and calls ag_trap_nested on a fresh trap stack (depth 2), which
+ * prints both and halts; a trap during that (depth 2) prints one line from
+ * here without using the stack and halts. ---- */
     .section .itcm, "ax"
     .align 4
     .global trap_entry
@@ -125,9 +128,11 @@ trap_entry:
     mv      a0, t0
     call    ag_trap_dispatch
     beqz    a0, trap_halt
-    la      t0, ag_trap_depth     /* retry: restore everything and return */
+    la      t0, ag_trap_depth     /* resume: restore mepc and everything else, return */
     sw      zero, 0(t0)
     la      t0, ag_trap_frame
+    ld      t1, 264(t0)
+    csrw    mepc, t1
     ld      x1, 8(t0)
     ld      x2, 16(t0)
     ld      x3, 24(t0)
@@ -161,7 +166,22 @@ trap_entry:
     ld      x5, 40(t0)
     mret
 
-trap_nested:                      /* "NESTED TRAP cause=<hex> epc=<hex> tval=<hex>" */
+trap_nested:                      /* depth 1: report both traps in C on a fresh trap stack */
+    la      t0, ag_trap_depth
+    lw      t1, 0(t0)
+    li      t2, 1
+    bne     t1, t2, trap_third
+    li      t1, 2
+    sw      t1, 0(t0)
+    la      sp, ag_trap_stack
+    li      t1, 4096
+    add     sp, sp, t1
+    csrr    a0, mcause
+    csrr    a1, mepc
+    csrr    a2, mtval
+    call    ag_trap_nested
+    j       trap_halt
+trap_third:                       /* "NESTED TRAP cause=<hex> epc=<hex> tval=<hex>", no stack */
     li      t6, BOARD_UART_BASE
     la      t5, nested_msg
     call    trap_puts
@@ -218,7 +238,7 @@ trap_hex:                         /* a0 = value, 16 nibbles */
     ret
 
     .section .itcm.rodata, "a"
-nested_msg: .asciz "\r\nNESTED TRAP cause=0x"
+nested_msg: .asciz "\r\nTRAP WHILE REPORTING A NESTED TRAP cause=0x"
 trap_epc:   .asciz " epc=0x"
 trap_tval:  .asciz " tval=0x"
 trap_nl:    .asciz "\r\n"

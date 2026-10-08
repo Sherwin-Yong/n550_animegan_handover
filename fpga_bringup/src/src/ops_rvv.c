@@ -6,44 +6,30 @@
 /* RVV kernels of the bf16 runtime (AG_RVV builds): ADD, LEAKY_RELU,
  * RESIZE_BILINEAR, TANH, LADE, MIRROR_PAD (blocked and dense-input),
  * the convolution epilogue and the UINT8 <-> bf16 frame conversions of the
- * board program. bf16 <-> fp32 is done with integer shifts (no zvfbfmin
- * needed) and every kernel uses the same fp32 formulas as the scalar kernel
- * in src/ops_bf16.c, so host and board agree except for the summation order
- * inside LADE's statistics. Blocked tensors are processed row by row: one row
- * of one channel block is W x 32 contiguous bf16.
+ * board program. bf16 <-> fp32 is one zvfbfmin instruction each way
+ * (vfwcvtbf16 is exact, vfncvtbf16 rounds with frm = RNE, written at the
+ * entry of ag_execute_node_rvv, by the convolution and by the board program),
+ * bit-identical to the scalar ag_bf16_to_f32 / ag_f32_to_bf16, and every
+ * kernel uses the same fp32 formulas as the scalar kernel in src/ops_bf16.c,
+ * so host and board agree except for the summation order inside LADE's
+ * statistics. Blocked tensors are processed row by row: one row of one channel
+ * block is W x 32 contiguous bf16.
  *
  * Vector shapes: bf16 at e16 LMUL=2 widened to fp32 at LMUL=4 (128 elements
  * per strip at VLEN=1024 = 4 pixels of a channel block); the per-pixel
  * kernels (resize) use LMUL=1 fp32 = one 32-lane pixel. */
 
-static inline vfloat32m4_t load4(const uint16_t *p, size_t vl) {
-    vuint32m4_t u = __riscv_vzext_vf2_u32m4(__riscv_vle16_v_u16m2(p, vl), vl);
-    return __riscv_vreinterpret_v_u32m4_f32m4(__riscv_vsll_vx_u32m4(u, 16, vl));
-}
-static inline vuint16m2_t bf16_4(vfloat32m4_t f, size_t vl) {   /* round to nearest even */
-    vuint32m4_t u = __riscv_vreinterpret_v_f32m4_u32m4(f);
-    vuint32m4_t lsb = __riscv_vand_vx_u32m4(__riscv_vsrl_vx_u32m4(u, 16, vl), 1, vl);
-    u = __riscv_vadd_vv_u32m4(__riscv_vadd_vx_u32m4(u, 0x7FFFu, vl), lsb, vl);
-    return __riscv_vnsrl_wx_u16m2(u, 16, vl);
-}
-static inline void store4(uint16_t *p, vfloat32m4_t f, size_t vl) { __riscv_vse16_v_u16m2(p, bf16_4(f, vl), vl); }
+static inline vfloat32m4_t load4(const uint16_t *p, size_t vl) { return __riscv_vfwcvtbf16_f_f_v_f32m4(__riscv_vle16_v_bf16m2((const __bf16 *)p, vl), vl); }
+static inline void store4(uint16_t *p, vfloat32m4_t f, size_t vl) { __riscv_vse16_v_bf16m2((__bf16 *)p, __riscv_vfncvtbf16_f_f_w_bf16m2(f, vl), vl); }
+static inline vfloat32m1_t load1(const uint16_t *p, size_t vl) { return __riscv_vfwcvtbf16_f_f_v_f32m1(__riscv_vle16_v_bf16mf2((const __bf16 *)p, vl), vl); }
+static inline void store1(uint16_t *p, vfloat32m1_t f, size_t vl) { __riscv_vse16_v_bf16mf2((__bf16 *)p, __riscv_vfncvtbf16_f_f_w_bf16mf2(f, vl), vl); }
 
-static inline vfloat32m1_t load1(const uint16_t *p, size_t vl) {
-    vuint32m1_t u = __riscv_vzext_vf2_u32m1(__riscv_vle16_v_u16mf2(p, vl), vl);
-    return __riscv_vreinterpret_v_u32m1_f32m1(__riscv_vsll_vx_u32m1(u, 16, vl));
-}
-static inline void store1(uint16_t *p, vfloat32m1_t f, size_t vl) {
-    vuint32m1_t u = __riscv_vreinterpret_v_f32m1_u32m1(f);
-    vuint32m1_t lsb = __riscv_vand_vx_u32m1(__riscv_vsrl_vx_u32m1(u, 16, vl), 1, vl);
-    u = __riscv_vadd_vv_u32m1(__riscv_vadd_vx_u32m1(u, 0x7FFFu, vl), lsb, vl);
-    __riscv_vse16_v_u16mf2(p, __riscv_vnsrl_wx_u16mf2(u, 16, vl), vl);
-}
-
+/* LeakyReLU as max(v, alpha * v) for 0 < alpha < 1 (the same value as
+ * v < 0 ? alpha * v : v, one instruction less than compare + merge) */
 static inline vfloat32m4_t leaky4(vfloat32m4_t v, int fused, float alpha, size_t vl) {
-    vbool8_t neg;
     if (fused != AG_FUSED_LEAKY) return v;
-    neg = __riscv_vmflt_vf_f32m4_b8(v, 0.0f, vl);
-    return __riscv_vmerge_vvm_f32m4(v, __riscv_vfmul_vf_f32m4(v, alpha, vl), neg, vl);
+    if (alpha > 0.0f && alpha < 1.0f) return __riscv_vfmax_vv_f32m4(v, __riscv_vfmul_vf_f32m4(v, alpha, vl), vl);
+    return __riscv_vmerge_vvm_f32m4(v, __riscv_vfmul_vf_f32m4(v, alpha, vl), __riscv_vmflt_vf_f32m4_b8(v, 0.0f, vl), vl);
 }
 
 /* interior row y of channel block cb */
@@ -93,7 +79,9 @@ static int elementwise_rvv(const ag_model *model, const ag_node_desc *node, cons
  * even output rows = horizontal expansion of input row i, one pixel at a time
  * (out[2j] = in[j], out[2j+1] = in[j] + (in[j+1] - in[j]) * 0.5, last column
  * clamped); odd rows = even row 2i + (even row 2i+2 - even row 2i) * 0.5 with
- * the last odd row equal to its even row: the scalar kernel's formulas. */
+ * the last odd row equal to its even row: the scalar kernel's formulas. The
+ * even output pixels are the input bf16 stored unchanged (bf16 -> fp32 -> bf16
+ * is the identity). */
 static int resize_rvv(const ag_model *model, const ag_node_desc *node, const int32_t *inputs, const int32_t *outputs, void *const tensor_data[]) {
     ag_view vi, vo;
     uint16_t *x, *y;
@@ -107,12 +95,15 @@ static int resize_rvv(const ag_model *model, const ag_node_desc *node, const int
             const uint16_t *px = row_ptr(x, &vi, cb, r);
             uint16_t *py = row_ptr(y, &vo, cb, 2 * r);
             size_t vl = __riscv_vsetvl_e32m1(AG_BLOCK);
-            vfloat32m1_t a = load1(px, vl);
+            vbfloat16mf2_t ra = __riscv_vle16_v_bf16mf2((const __bf16 *)px, vl);
+            vfloat32m1_t a = __riscv_vfwcvtbf16_f_f_v_f32m1(ra, vl);
             for (j = 0; j < vi.W; ++j) {
-                vfloat32m1_t b = j + 1 < vi.W ? load1(px + (size_t)(j + 1) * AG_BLOCK, vl) : a;
+                vbfloat16mf2_t rb = j + 1 < vi.W ? __riscv_vle16_v_bf16mf2((const __bf16 *)(px + (size_t)(j + 1) * AG_BLOCK), vl) : ra;
+                vfloat32m1_t b = __riscv_vfwcvtbf16_f_f_v_f32m1(rb, vl);
                 vfloat32m1_t h = __riscv_vfadd_vv_f32m1(a, __riscv_vfmul_vf_f32m1(__riscv_vfsub_vv_f32m1(b, a, vl), 0.5f, vl), vl);
-                store1(py + (size_t)(2 * j) * AG_BLOCK, a, vl);
+                __riscv_vse16_v_bf16mf2((__bf16 *)(py + (size_t)(2 * j) * AG_BLOCK), ra, vl);
                 store1(py + (size_t)(2 * j + 1) * AG_BLOCK, h, vl);
+                ra = rb;
                 a = b;
             }
         }
@@ -177,9 +168,8 @@ static int tanh_rvv(const ag_model *model, const ag_node_desc *node, const int32
         while (j < (size_t)vo.W) {
             size_t q = (size_t)vo.W - j < P ? (size_t)vo.W - j : P, vl = q * vo.C;
             vuint16m8_t s = __riscv_vcompress_vm_u16m8(__riscv_vle16_v_u16m8(px + j * AG_BLOCK, q * AG_BLOCK), keep, q * AG_BLOCK);
-            vuint32m4_t u = __riscv_vzext_vf2_u32m4(__riscv_vlmul_trunc_v_u16m8_u16m2(s), vl);
-            vfloat32m4_t v = tanh4(__riscv_vreinterpret_v_u32m4_f32m4(__riscv_vsll_vx_u32m4(u, 16, vl)), vl);
-            __riscv_vse16_v_u16m2(py + j * vo.C, bf16_4(v, vl), vl);
+            vbfloat16m2_t b = __riscv_vreinterpret_v_u16m2_bf16m2(__riscv_vlmul_trunc_v_u16m8_u16m2(s));
+            store4(py + j * vo.C, tanh4(__riscv_vfwcvtbf16_f_f_v_f32m4(b, vl), vl), vl);
             j += q;
         }
     }
@@ -308,17 +298,67 @@ static int pad_dense_rvv(const ag_view *vi, const uint16_t *x, const ag_view *vo
     return 0;
 }
 
+/* Lane-packed output (AG_TENSOR_LANE_PACK, first layer): every padded dense
+ * row is built once in a ring of R stack rows (interior memcpy + reflected
+ * border pixels, zeros past the right edge; rows past the bottom are zero);
+ * output row oy then takes, per strip of P pixels, the segments of rows
+ * oy..oy+R-1 ((P+KW-1)*C values each) into one register at offsets dy*seg,
+ * and one vrgather places lane (dy*KW+dx)*C+c of pixel p at value
+ * (p+dx)*C+c of segment dy (index >= VLMAX gives the zero lanes). */
+#define PACK_ROWS 4
+#define PACK_ROW_VALUES 2048
+static int pad_dense_packed_rvv(const ag_view *vi, const uint16_t *x, const ag_view *vo, uint16_t *y, int32_t top, int32_t left, uint32_t pack) {
+    uint16_t ring[PACK_ROWS][PACK_ROW_VALUES];
+    int32_t R = (int32_t)(pack & 0xFFu), KW = (int32_t)(pack >> 8 & 0xFFu), C = vi->C, yy, xx, dy;
+    size_t vlmax = __riscv_vsetvlmax_e16m8(), P = vlmax / AG_BLOCK, seg = (P + (size_t)KW - 1) * (size_t)C, row = (size_t)vo->W * (size_t)C;
+    vuint16m8_t j, lane, k, idx;
+    if (R < 1 || R > PACK_ROWS || KW < 1 || R * KW * C > AG_BLOCK || !P || (size_t)R * seg > vlmax || row + seg > PACK_ROW_VALUES) return AG_AME_UNSUPPORTED;
+    j = __riscv_vid_v_u16m8(vlmax);
+    lane = __riscv_vand_vx_u16m8(j, AG_BLOCK - 1, vlmax);
+    k = __riscv_vdivu_vx_u16m8(lane, (uint16_t)(KW * C), vlmax);   /* dy */
+    idx = __riscv_vadd_vv_u16m8(__riscv_vmul_vx_u16m8(k, (uint16_t)seg, vlmax),
+                                __riscv_vadd_vv_u16m8(__riscv_vmul_vx_u16m8(__riscv_vsrl_vx_u16m8(j, 5, vlmax), (uint16_t)C, vlmax),
+                                                      __riscv_vsub_vv_u16m8(lane, __riscv_vmul_vx_u16m8(k, (uint16_t)(KW * C), vlmax), vlmax), vlmax), vlmax);
+    idx = __riscv_vmerge_vxm_u16m8(idx, 0xFFFFu, __riscv_vmsgeu_vx_u16m8_b2(lane, (uint16_t)(R * KW * C), vlmax), vlmax);
+    for (dy = 0; dy < R; ++dy) memset(ring[dy] + row, 0, seg * 2);
+    for (yy = 0; yy < vo->H + R - 1; ++yy) {
+        uint16_t *b = ring[yy % R];
+        if (yy < vo->H) {   /* padded dense row yy */
+            memcpy(b + (size_t)left * C, x + (size_t)reflect(yy - top, vi->H) * vi->W * C, (size_t)vi->W * C * 2);
+            for (xx = 0; xx < vo->W; ++xx)
+                if (xx < left || xx >= left + vi->W) memcpy(b + (size_t)xx * C, b + (size_t)(left + reflect(xx - left, vi->W)) * C, (size_t)C * 2);
+        } else memset(b, 0, row * 2);
+        if (yy >= R - 1) {  /* output row oy from ring rows oy .. oy+R-1 = yy */
+            int32_t oy = yy - R + 1;
+            uint16_t *dst = row_ptr(y, vo, 0, oy);
+            size_t p = 0;
+            while (p < (size_t)vo->W) {
+                size_t q = (size_t)vo->W - p < P ? (size_t)vo->W - p : P;
+                vuint16m8_t s = __riscv_vle16_v_u16m8(ring[oy % R] + p * C, seg);
+                for (dy = 1; dy < R; ++dy)
+                    s = __riscv_vslideup_vx_u16m8(s, __riscv_vle16_v_u16m8(ring[(oy + dy) % R] + p * C, seg), (size_t)dy * seg, (size_t)(dy + 1) * seg);
+                __riscv_vse16_v_u16m8(dst + p * AG_BLOCK, __riscv_vrgather_vv_u16m8(s, idx, q * AG_BLOCK), q * AG_BLOCK);
+                p += q;
+            }
+        }
+    }
+    return 0;
+}
+
 static int pad_rvv(const ag_model *model, const ag_node_desc *node, const int32_t *inputs, const int32_t *outputs, void *const tensor_data[]) {
     ag_view vi, vo;
     uint16_t *x, *y;
     int32_t top = node->options.integers[1], bottom = node->options.integers[2], left = node->options.integers[3], right = node->options.integers[4];
+    const ag_tensor_desc *ot = model->tensors + outputs[0];
     int32_t cb, yy;
     int in_place;
     if (node->options.integers[0] != 0) return AG_AME_UNSUPPORTED;
     if (act(model, inputs[0], tensor_data, &vi, &x) || act(model, outputs[0], tensor_data, &vo, &y)) return AG_AME_UNSUPPORTED;
     if (!vo.block || vo.C != vi.C || vo.H != vi.H + top + bottom || vo.W != vi.W + left + right) return AG_AME_UNSUPPORTED;
-    in_place = (model->tensors[outputs[0]].flags & 8) != 0;
+    in_place = (ot->flags & 8) != 0;
     if (in_place && x != y) return AG_AME_UNSUPPORTED;
+    if (ot->flags & AG_TENSOR_LANE_PACK)
+        return vi.block || in_place || ot->pad_h || ot->pad_w ? AG_AME_UNSUPPORTED : pad_dense_packed_rvv(&vi, x, &vo, y, top, left, ot->reserved);
     if (!vi.block) return in_place ? AG_AME_UNSUPPORTED : pad_dense_rvv(&vi, x, &vo, y, top, left, right);
     for (cb = 0; cb < vo.blocks; ++cb) {
         for (yy = 0; yy < vo.H; ++yy) {
@@ -334,6 +374,7 @@ static int pad_rvv(const ag_model *model, const ag_node_desc *node, const int32_
 }
 
 int ag_execute_node_rvv(const ag_model *model, const ag_node_desc *node, const int32_t *inputs, const int32_t *outputs, void *const tensor_data[]) {
+    __asm__ volatile("csrw frm, x0");     /* round to nearest even for vfncvtbf16 and the fp32 arithmetic */
     switch (node->opcode) {
     case 0: return elementwise_rvv(model, node, inputs, outputs, tensor_data, 1);
     case 98: return elementwise_rvv(model, node, inputs, outputs, tensor_data, 0);
@@ -345,27 +386,111 @@ int ag_execute_node_rvv(const ag_model *model, const ag_node_desc *node, const i
     }
 }
 
-/* ---- convolution epilogue: fp32 C rows [rows][KO] -> blocked bf16 output pixels ---- */
-void ag_conv_epilogue_rvv(uint16_t *y_row0, size_t plane_elems, const float *cbuf, int32_t rows, int32_t KO, int32_t blocks,
-                          const float *bias, int fused, float alpha) {
-    int32_t cb, r;
-    for (cb = 0; cb < blocks; ++cb) {
+/* ---- convolution epilogue: fp32 C rows [rows][KO] -> blocked bf16 output pixels ----
+ * ag_conv_epilogue_rvv_init runs once per node: it copies the bias with zeros
+ * beyond KO (KO = 32: repeated for 8 pixels) and picks the LeakyReLU form, so
+ * a call per tile (or row range) does no scalar work per element.
+ * Per pixel and channel block: load 32 fp32, add the bias, fused LeakyReLU as
+ * max(v, alpha * v) for 0 < alpha < 1 (the same value as v < 0 ? alpha * v : v,
+ * one instruction less than compare + merge), round to bf16 with vfncvtbf16
+ * (frm = RNE, set by the convolution before the AME work) and store 64 B. Lanes
+ * beyond KO are zeroed only when KO is not a multiple of 32. KO = 32: the C rows
+ * and the output pixels are both contiguous, so 8 pixels go through one m8
+ * strip (strips of exactly 256 lanes keep the bias aligned to the pixels). */
+enum { EPI_LINEAR, EPI_MAX, EPI_MERGE };
+static inline vfloat32m8_t leaky8(vfloat32m8_t v, int mode, float alpha, size_t vl) {
+    if (mode == EPI_MAX) return __riscv_vfmax_vv_f32m8(v, __riscv_vfmul_vf_f32m8(v, alpha, vl), vl);
+    if (mode == EPI_MERGE) return __riscv_vmerge_vvm_f32m8(v, __riscv_vfmul_vf_f32m8(v, alpha, vl), __riscv_vmflt_vf_f32m8_b4(v, 0.0f, vl), vl);
+    return v;
+}
+static inline vfloat32m1_t leaky1(vfloat32m1_t v, int mode, float alpha, size_t vl) {
+    if (mode == EPI_MAX) return __riscv_vfmax_vv_f32m1(v, __riscv_vfmul_vf_f32m1(v, alpha, vl), vl);
+    if (mode == EPI_MERGE) return __riscv_vmerge_vvm_f32m1(v, __riscv_vfmul_vf_f32m1(v, alpha, vl), __riscv_vmflt_vf_f32m1_b32(v, 0.0f, vl), vl);
+    return v;
+}
+
+void ag_conv_epilogue_rvv_init(ag_conv_epi *e, const ag_conv_geom *g) {
+    int32_t i;
+    e->KO = g->KO;
+    e->blocks = g->out.blocks;
+    e->plane_elems = (size_t)g->out.plane * AG_BLOCK;
+    e->wide = g->KO == AG_BLOCK && __riscv_vsetvlmax_e32m8() >= 8 * AG_BLOCK;
+    e->mode = g->fused != AG_FUSED_LEAKY ? EPI_LINEAR : g->alpha > 0.0f && g->alpha < 1.0f ? EPI_MAX : EPI_MERGE;
+    e->alpha = g->alpha;
+    for (i = 0; i < 8 * AG_BLOCK; ++i) {
+        int32_t ko = g->KO == AG_BLOCK ? i % AG_BLOCK : i;
+        e->bias[i] = g->bias && ko < g->KO ? g->bias[ko] : 0.0f;
+    }
+}
+
+void ag_conv_epilogue_rvv(const ag_conv_epi *e, uint16_t *y_row0, const float *cbuf, int32_t rows) {
+    int mode = e->mode;
+    float alpha = e->alpha;
+    int32_t KO = e->KO, cb, r;
+    if (e->wide) {
+        size_t i, n = (size_t)rows * AG_BLOCK, vl = __riscv_vsetvl_e32m8(8 * AG_BLOCK);
+        vfloat32m8_t vb = __riscv_vle32_v_f32m8(e->bias, vl);
+        for (i = 0; i < n; i += vl) {
+            vfloat32m8_t v;
+            vl = __riscv_vsetvl_e32m8(n - i < 8 * AG_BLOCK ? n - i : 8 * AG_BLOCK);
+            v = __riscv_vfadd_vv_f32m8(__riscv_vle32_v_f32m8(cbuf + i, vl), vb, vl);
+            __riscv_vse16_v_bf16m4((__bf16 *)(y_row0 + i), __riscv_vfncvtbf16_f_f_w_bf16m4(leaky8(v, mode, alpha, vl), vl), vl);
+        }
+        return;
+    }
+    for (cb = 0; cb < e->blocks; ++cb) {
         int32_t lanes = KO - cb * AG_BLOCK < AG_BLOCK ? KO - cb * AG_BLOCK : AG_BLOCK;
         size_t vl = __riscv_vsetvl_e32m1(AG_BLOCK);
-        vfloat32m1_t vb = bias ? __riscv_vle32_v_f32m1(bias + cb * AG_BLOCK, (size_t)lanes) : __riscv_vfmv_v_f_f32m1(0.0f, vl);
-        vbool32_t valid = __riscv_vmsltu_vx_u32m1_b32(__riscv_vid_v_u32m1(vl), (uint32_t)lanes, vl);
-        if (bias && lanes < AG_BLOCK) vb = __riscv_vfmerge_vfm_f32m1(vb, 0.0f, __riscv_vmnot_m_b32(valid, vl), vl);
-        for (r = 0; r < rows; ++r) {
-            vfloat32m1_t v = __riscv_vle32_v_f32m1(cbuf + (size_t)r * KO + cb * AG_BLOCK, (size_t)lanes);
-            v = __riscv_vfadd_vv_f32m1(v, vb, vl);
-            if (fused == AG_FUSED_LEAKY) {
-                vbool32_t neg = __riscv_vmflt_vf_f32m1_b32(v, 0.0f, vl);
-                v = __riscv_vmerge_vvm_f32m1(v, __riscv_vfmul_vf_f32m1(v, alpha, vl), neg, vl);
+        vfloat32m1_t vb = __riscv_vle32_v_f32m1(e->bias + cb * AG_BLOCK, vl);
+        uint16_t *yp = y_row0 + (size_t)cb * e->plane_elems;
+        const float *cp = cbuf + cb * AG_BLOCK;
+        if (lanes == AG_BLOCK) {
+            for (r = 0; r < rows; ++r) {
+                vfloat32m1_t v = leaky1(__riscv_vfadd_vv_f32m1(__riscv_vle32_v_f32m1(cp + (size_t)r * KO, vl), vb, vl), mode, alpha, vl);
+                __riscv_vse16_v_bf16mf2((__bf16 *)(yp + (size_t)r * AG_BLOCK), __riscv_vfncvtbf16_f_f_w_bf16mf2(v, vl), vl);
             }
-            v = __riscv_vfmerge_vfm_f32m1(v, 0.0f, __riscv_vmnot_m_b32(valid, vl), vl);
-            store1(y_row0 + (size_t)cb * plane_elems + (size_t)r * AG_BLOCK, v, vl);
+        } else {   /* the C row holds only `lanes` values: load those, zero the rest after the activation */
+            vbool32_t pad = __riscv_vmsgeu_vx_u32m1_b32(__riscv_vid_v_u32m1(vl), (uint32_t)lanes, vl);
+            for (r = 0; r < rows; ++r) {
+                vfloat32m1_t v = __riscv_vfadd_vv_f32m1(__riscv_vle32_v_f32m1(cp + (size_t)r * KO, (size_t)lanes), vb, vl);
+                v = __riscv_vfmerge_vfm_f32m1(leaky1(v, mode, alpha, vl), 0.0f, pad, vl);
+                __riscv_vse16_v_bf16mf2((__bf16 *)(yp + (size_t)r * AG_BLOCK), __riscv_vfncvtbf16_f_f_w_bf16mf2(v, vl), vl);
+            }
         }
     }
+}
+
+/* ---- tensor statistics (runtime.h), RVV: strips of at most VLMAX lanes start
+ * on pixel boundaries, lanes >= C of the last channel block are zeroed, sums are
+ * widened into fp64 accumulators (tail undisturbed) and reduced in order ---- */
+void ag_tensor_stats(const ag_tensor_desc *tensor, const void *data, ag_stats *st) {
+    ag_view v = ag_view_of(tensor);
+    uint16_t *p = (uint16_t *)(uintptr_t)data;
+    size_t vlmax = __riscv_vsetvlmax_e32m4(), i, n, vl;
+    vfloat64m8_t sum = __riscv_vfmv_v_f_f64m8(0.0, vlmax), asum = __riscv_vfmv_v_f_f64m8(0.0, vlmax);
+    vfloat32m4_t mx = __riscv_vfmv_v_f_f32m4(0.0f, vlmax);
+    int32_t cb, y;
+    for (cb = 0; cb < v.blocks; ++cb) {
+        int32_t lanes = v.block ? (v.C - cb * AG_BLOCK < AG_BLOCK ? v.C - cb * AG_BLOCK : AG_BLOCK) : AG_BLOCK;
+        vbool8_t pad = __riscv_vmsgeu_vx_u32m4_b8(__riscv_vand_vx_u32m4(__riscv_vid_v_u32m4(vlmax), AG_BLOCK - 1, vlmax), (uint32_t)lanes, vlmax);
+        for (y = 0; y < (v.block ? v.H : 1); ++y) {
+            const uint16_t *row = v.block ? row_ptr(p, &v, cb, y) : p;
+            n = v.block ? (size_t)v.W * AG_BLOCK : (size_t)v.H * v.W * v.C;
+            for (i = 0; i < n; i += vl) {
+                vfloat32m4_t f;
+                vl = __riscv_vsetvl_e32m4(n - i < vlmax ? n - i : vlmax);
+                f = load4(row + i, vl);
+                if (lanes < AG_BLOCK) f = __riscv_vfmerge_vfm_f32m4(f, 0.0f, pad, vl);
+                sum = __riscv_vfwadd_wv_f64m8_tu(sum, sum, f, vl);
+                f = __riscv_vfabs_v_f32m4(f, vl);
+                asum = __riscv_vfwadd_wv_f64m8_tu(asum, asum, f, vl);
+                mx = __riscv_vfmax_vv_f32m4_tu(mx, mx, f, vl);
+            }
+        }
+    }
+    st->sum = __riscv_vfmv_f_s_f64m1_f64(__riscv_vfredosum_vs_f64m8_f64m1(sum, __riscv_vfmv_s_f_f64m1(0.0, 1), vlmax));
+    st->abs_sum = __riscv_vfmv_f_s_f64m1_f64(__riscv_vfredosum_vs_f64m8_f64m1(asum, __riscv_vfmv_s_f_f64m1(0.0, 1), vlmax));
+    st->max_abs = __riscv_vfmv_f_s_f32m1_f32(__riscv_vfredmax_vs_f32m4_f32m1(mx, __riscv_vfmv_s_f_f32m1(0.0f, 1), vlmax));
 }
 
 /* ---- board frame conversions: UINT8 RGB <-> dense bf16 ---- */

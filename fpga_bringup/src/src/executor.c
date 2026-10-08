@@ -66,14 +66,10 @@ int ag_runtime_bind(ag_runtime *runtime, uint32_t tensor_id, void *data, size_t 
     return 0;
 }
 
-/* Workspace a node needs under the given backend; scalar kernels need none. */
+/* Workspace a node needs under the given backend; scalar kernels need none. The
+ * AME size is known in every build, so a host plan matches the board's. */
 size_t ag_node_scratch_bytes(const ag_model *model, uint32_t node_id, ag_backend backend) {
-#ifdef AG_AME
-    if (backend == AG_BACKEND_AME && node_id < model->node_count && model->nodes[node_id].opcode == 3)
-        return ag_conv2d_ame_scratch(model, model->nodes + node_id);
-#else
-    (void)model; (void)node_id; (void)backend;
-#endif
+    if (backend == AG_BACKEND_AME && node_id < model->node_count && model->nodes[node_id].opcode == 3) return AG_CONV_AME_SCRATCH;
     return 0;
 }
 

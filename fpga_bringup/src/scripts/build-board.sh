@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Bare-metal back-door frame program: tests/board_backdoor.c + runtime + platform_board
-# + bsp, model pack embedded. BOARD=qemu_virt (default) or s2c; BACKEND=ame
+# Bare-metal back-door frame program: tests/board_backdoor.c (+ the extra stage's
+# micro-benchmarks tests/board_bench.c) + runtime + platform_board + bsp, model pack embedded. BOARD=qemu_virt (default) or s2c; BACKEND=ame
 # (default) or scalar; DEBUG=0 (default, release) or 1 (per-stage/per-node UART
 # log); MODEL=<pack> (default build/animeganv3_bf16.agp).
 # Output: $ANIMEGAN_BUILD/board/board_<board>_<backend>[_debug].elf, .bin (raw, loaded
@@ -38,7 +38,7 @@ flags="-march=$ANIMEGAN_MARCH -mabi=lp64d -mcmodel=medany -O2 -std=gnu11 -g3 -gd
        -I$root_dir/include -I$root_dir/src -T $root_dir/src/bsp/board.ld ${BOARD_EXTRA_DEFS:-}"
 suffix=$([[ $debug == 1 ]] && echo _debug || true)
 elf=$out_dir/board_${board}_${backend}${suffix}.elf
-"$CC" $flags "${defs[@]}" $core "$root_dir/tests/board_backdoor.c" -lm -o "$elf"
+"$CC" $flags "${defs[@]}" $core "$root_dir/tests/board_backdoor.c" "$root_dir/tests/board_bench.c" -lm -o "$elf"
 "${CC%gcc}objcopy" -O binary --gap-fill 0 "$elf" "${elf%.elf}.bin"
 addr() { cpp -P "${defs[@]}" -dM "$root_dir/src/bsp/board.h" | awk -v k="$1" '$2==k{print $3}'; }
 sym() { "${CC%gcc}nm" "$elf" | awk -v k="$1" '$3==k{print $1}'; }

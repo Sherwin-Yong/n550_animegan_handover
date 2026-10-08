@@ -26,9 +26,43 @@ static inline int32_t reflect(int32_t i, int32_t n) {
     return i;
 }
 
+#ifndef AG_RVV
+void ag_tensor_stats(const ag_tensor_desc *tensor, const void *data, ag_stats *st) {
+    ag_view v = ag_view_of(tensor);
+    const uint16_t *p = data;
+    int32_t y, x, c;
+    st->sum = st->abs_sum = 0.0;
+    st->max_abs = 0.0f;
+    for (y = 0; y < v.H; ++y)
+        for (x = 0; x < v.W; ++x)
+            for (c = 0; c < v.C; ++c) {
+                float f = ag_bf16_to_f32(p[ag_index(&v, y, x, c)]), a = f < 0.0f ? -f : f;
+                st->sum += f;
+                st->abs_sum += a;
+                if (a > st->max_abs) st->max_abs = a;
+            }
+}
+#endif
+
+/* Lanes beyond C of a lane-packed tensor (AG_TENSOR_LANE_PACK, runtime.h),
+ * lanes from R*KW*C on are zero: only lanes < C are read, so the fill can run
+ * in place in any order. */
+void ag_fill_lane_pack(const ag_tensor_desc *tensor, uint16_t *p) {
+    ag_view v = ag_view_of(tensor);
+    int32_t R = (int32_t)(tensor->reserved & 0xFFu), KW = (int32_t)(tensor->reserved >> 8 & 0xFFu), y, x, lane;
+    if (!v.block || v.C < 1 || v.C > AG_BLOCK || R < 1 || KW < 1) return;
+    for (y = 0; y < v.H; ++y)
+        for (x = 0; x < v.W; ++x)
+            for (lane = v.C; lane < AG_BLOCK; ++lane) {
+                int32_t k = lane / v.C, c = lane % v.C, dy = k / KW, dx = k % KW;
+                p[ag_index(&v, y, x, lane)] = dy < R && y + dy < v.H && x + dx < v.W ? p[ag_index(&v, y + dy, x + dx, c)] : 0;
+            }
+}
+
 /* The output either is its own buffer (copy) or aliases the input's padded
  * buffer (flag 8): then the interior already holds the input and only the
- * reflected border is written. */
+ * reflected border is written. A lane-packed output gets its neighbourhood
+ * lanes afterwards. */
 int ag_mirror_pad(const ag_model *model, const ag_node_desc *node, const int32_t *inputs, const int32_t *outputs,
                   void *const tensor_data[]) {
     ag_view vi, vo;
@@ -51,6 +85,7 @@ int ag_mirror_pad(const ag_model *model, const ag_node_desc *node, const int32_t
                 y[ag_index(&vo, yy, xx, c)] = c < vi.C ? x[ag_index(&vi, sy, sx, c)] : 0;
         }
     }
+    if (model->tensors[outputs[0]].flags & AG_TENSOR_LANE_PACK) ag_fill_lane_pack(model->tensors + outputs[0], y);
     return 0;
 }
 
