@@ -1,11 +1,11 @@
 # 文件清单（机器校验用 checksums.sha256：sha256sum -c checksums.sha256）
-# source commit ef958c30792daafb7ac497ed7ad0b3ed291c555e
+# source commit 0551b13b0cbd7ab93793d5b3a5f00687b9ab9501
 
          381  BUILD_INFO.txt
        15990  README.md
          690  addresses.txt
       786432  input/test8.input.bin
-     3588932  release/board_s2c_ame.bin
+     3588936  release/board_s2c_ame.bin
       779381  release/board_s2c_ame.diss
      3917920  release/board_s2c_ame.elf
         6562  release/board_s2c_ame.sym
@@ -20,7 +20,7 @@
         4184  src/scripts/build-board.sh
          778  src/scripts/env.sh
         4599  src/src/bsp/board.h
-        1613  src/src/bsp/board.ld
+        2148  src/src/bsp/board.ld
          318  src/src/bsp/model_blob.S
         6992  src/src/bsp/start.S
        17198  src/src/bsp/trap.c

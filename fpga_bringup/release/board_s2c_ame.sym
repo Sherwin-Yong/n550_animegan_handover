@@ -193,7 +193,7 @@
 000000008036aac0 D ag_conv_overlap
 000000008036aac4 d graph_out
 000000008036aac8 d graph_in
-000000008036aacc A _itcm_lma
+000000008036aad0 A _itcm_lma
 000000008036b2b8 D __global_pointer$
 000000008036c348 B _bss_start
 000000008036c348 b g_errno

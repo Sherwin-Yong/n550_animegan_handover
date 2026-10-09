@@ -41,7 +41,7 @@ _start:
     80000036:	bfdd                	j	8000002c <_start+0x2c>
 2:  la      t0, _itcm_lma         /* ITCM <- .itcm load image */
     80000038:	0036b297          	auipc	t0,0x36b
-    8000003c:	a9428293          	addi	t0,t0,-1388 # 8036aacc <_itcm_lma>
+    8000003c:	a9828293          	addi	t0,t0,-1384 # 8036aad0 <_itcm_lma>
     la      t1, _itcm_start
     80000040:	84000317          	auipc	t1,0x84000
     80000044:	fc030313          	addi	t1,t1,-64 # 4000000 <_itcm_start>

@@ -1,5 +1,5 @@
 back-door load addresses (s2c, ame, DEBUG=0)
-  program  board_s2c_ame.bin -> 0x80000000  (3588932 B, image ends 0x00000000803ac590)
+  program  board_s2c_ame.bin -> 0x80000000  (3588936 B, image ends 0x00000000803ac590)
   magic    32-bit 0x5A5AC3C3 -> 0x87F00080  (a value, not a file)
   input    512x512 RGB UINT8 frame (786432 B) -> 0xF0000000
   output   read 786432 B at 0xF0100000
