@@ -1,0 +1,266 @@
+animeganv3 backdoor S2C N550+AMU backend=ame bf16 release
+pcie magic 0x000000005a5ac3c3 ok
+clp self-test ok
+#4;#5;#6;@0;@1;@2;@3;@4;@5;@6;@7;@8;@9;@10;@11;@12;@13;@14;@15;@16;@17;@18;@19;@20;@21;@23;@24;@25;@26;@28;@29;@30;@31;@33;@34;@35;@36;@38;@39;@40;@41;@43;@44;@45;@46;@48;@49;@50;@51;@52;@53;@54;@55;@56;@57;@58;@59;@60;@61;@62;@63;@64;@65;@66;@67;@68;@69;@70;@71;@72;@73;@74;@75;@76;@77;@78;#7;cycles pre=749717 forward=170541458 conv=112959542 other=57554523 post=511279 cpu_hz=40000000
+done
+per-node cycles, main forward:
+node 0 op 100 cycles 5833911
+node 1 op 3 cycles 5970370
+node 2 op 100 cycles 991001
+node 3 op 3 cycles 3308465
+node 4 op 100 cycles 19919
+node 5 op 3 cycles 4911212
+node 6 op 100 cycles 40053
+node 7 op 3 cycles 5806798
+node 8 op 100 cycles 506248
+node 9 op 3 cycles 1697525
+node 10 op 100 cycles 20493
+node 11 op 3 cycles 2546502
+node 12 op 100 cycles 40462
+node 13 op 3 cycles 3123358
+node 14 op 100 cycles 266830
+node 15 op 3 cycles 1036020
+node 16 op 100 cycles 20991
+node 17 op 3 cycles 903773
+node 18 op 100 cycles 20840
+node 19 op 3 cycles 903371
+node 20 op 3 cycles 306407
+node 21 op 100 cycles 10685
+node 22 op 3 cycles 432120
+node 23 op 3 cycles 365316
+node 24 op 0 cycles 320416
+node 25 op 3 cycles 306234
+node 26 op 100 cycles 10732
+node 27 op 3 cycles 431469
+node 28 op 3 cycles 365146
+node 29 op 0 cycles 320113
+node 30 op 3 cycles 306170
+node 31 op 100 cycles 10900
+node 32 op 3 cycles 430576
+node 33 op 3 cycles 365269
+node 34 op 0 cycles 320113
+node 35 op 3 cycles 306085
+node 36 op 100 cycles 10750
+node 37 op 3 cycles 430623
+node 38 op 3 cycles 364522
+node 39 op 0 cycles 319951
+node 40 op 3 cycles 305941
+node 41 op 100 cycles 10684
+node 42 op 3 cycles 430734
+node 43 op 3 cycles 365133
+node 44 op 0 cycles 320116
+node 45 op 3 cycles 305827
+node 46 op 100 cycles 10674
+node 47 op 3 cycles 430413
+node 48 op 3 cycles 365055
+node 49 op 0 cycles 320092
+node 50 op 23 cycles 1280585
+node 51 op 100 cycles 40604
+node 52 op 3 cycles 3122421
+node 53 op 0 cycles 1024211
+node 54 op 100 cycles 40346
+node 55 op 3 cycles 3122453
+node 56 op 100 cycles 40403
+node 57 op 3 cycles 3122267
+node 58 op 23 cycles 5067565
+node 59 op 100 cycles 79464
+node 60 op 3 cycles 7304417
+node 61 op 0 cycles 2047582
+node 62 op 100 cycles 39979
+node 63 op 3 cycles 5757518
+node 64 op 100 cycles 39909
+node 65 op 3 cycles 5818387
+node 66 op 23 cycles 10104831
+node 67 op 100 cycles 79164
+node 68 op 3 cycles 11615802
+node 69 op 0 cycles 4094121
+node 70 op 100 cycles 39797
+node 71 op 3 cycles 8782376
+node 72 op 100 cycles 57694
+node 73 op 3 cycles 12999501
+node 74 op 3 cycles 4475945
+node 75 op 200 cycles 18899375
+node 76 op 100 cycles 39837
+node 77 op 3 cycles 10018021
+node 78 op 28 cycles 4793082
+@0;stats node 0 sum_u -153846971130 abs_u 511367441833 max_u 1000000
+stats node 1 sum_u 2918349223978 abs_u 4129406917920 max_u 17250000
+stats node 2 sum_u 2929257962269 abs_u 4143941942237 max_u 17250000
+stats node 3 sum_u 595648885753 abs_u 892570827976 max_u 21000000
+stats node 4 sum_u 604723340274 abs_u 906375788184 max_u 21000000
+stats node 5 sum_u 1136634012751 abs_u 1695363566838 max_u 20500000
+stats node 6 sum_u 1154645500583 abs_u 1721883287623 max_u 20500000
+stats node 7 sum_u 737337336034 abs_u 1330456052871 max_u 17750000
+stats node 8 sum_u 742865277999 abs_u 1339726427897 max_u 17750000
+stats node 9 sum_u 229429497817 abs_u 400517134569 max_u 12250000
+stats node 10 sum_u 236566812802 abs_u 412568396265 max_u 12250000
+stats node 11 sum_u 192856366013 abs_u 641636620922 max_u 16375000
+stats node 12 sum_u 198128302247 abs_u 659968289718 max_u 16375000
+stats node 13 sum_u 174066119299 abs_u 603161988792 max_u 10687500
+stats node 14 sum_u 177365977092 abs_u 611452622226 max_u 10687500
+stats node 15 sum_u 45919614608 abs_u 165754647813 max_u 10375000
+stats node 16 sum_u 48734984350 abs_u 175290002759 max_u 10375000
+stats node 17 sum_u 55592156470 abs_u 176073420138 max_u 9312500
+stats node 18 sum_u 60304429484 abs_u 187546616899 max_u 9312500
+stats node 19 sum_u 38087337572 abs_u 108202032633 max_u 5062500
+stats node 20 sum_u 48467924238 abs_u 93683630668 max_u 6625000
+stats node 21 sum_u 51558269416 abs_u 99426536540 max_u 6625000
+stats node 22 sum_u 104163022679 abs_u 149477545571 max_u 7531250
+stats node 23 sum_u -70416066481 abs_u 102658005595 max_u 2093750
+stats node 24 sum_u 33310882805 abs_u 66131122589 max_u 3656250
+stats node 25 sum_u 40859044546 abs_u 82765453615 max_u 5562500
+stats node 26 sum_u 43147048936 abs_u 87642601487 max_u 5562500
+stats node 27 sum_u 72951757507 abs_u 122311070828 max_u 8000000
+stats node 28 sum_u -26799005447 abs_u 65906666157 max_u 1437500
+stats node 29 sum_u 43980508938 abs_u 62714978675 max_u 3484375
+stats node 30 sum_u 35326736802 abs_u 77033826130 max_u 4906250
+stats node 31 sum_u 37485284322 abs_u 81658687327 max_u 4906250
+stats node 32 sum_u 62919975222 abs_u 112651826789 max_u 7312500
+stats node 33 sum_u -16071591440 abs_u 59280942078 max_u 1320313
+stats node 34 sum_u 55418520961 abs_u 69173248869 max_u 3437500
+stats node 35 sum_u 30716343317 abs_u 73257575554 max_u 5343750
+stats node 36 sum_u 32240233705 abs_u 77604327115 max_u 5343750
+stats node 37 sum_u 70608069976 abs_u 120914834466 max_u 7093750
+stats node 38 sum_u -21266294839 abs_u 63924552211 max_u 1453125
+stats node 39 sum_u 62375055827 abs_u 76486822705 max_u 3359375
+stats node 40 sum_u 22332601968 abs_u 66701352465 max_u 5468750
+stats node 41 sum_u 23700722186 abs_u 70748809245 max_u 5468750
+stats node 42 sum_u 69348080471 abs_u 121502695439 max_u 8437500
+stats node 43 sum_u -20093951276 abs_u 65655812036 max_u 1539063
+stats node 44 sum_u 70541388818 abs_u 84671859885 max_u 3453125
+stats node 45 sum_u 19317911611 abs_u 66093975040 max_u 5093750
+stats node 46 sum_u 20427754141 abs_u 70235286745 max_u 5093750
+stats node 47 sum_u 60088466632 abs_u 125353896716 max_u 8562500
+stats node 48 sum_u -30976395718 abs_u 71503506601 max_u 1679688
+stats node 49 sum_u 70875509666 abs_u 86531011867 max_u 3234375
+stats node 50 sum_u 283401195296 abs_u 336615436531 max_u 3234375
+stats node 51 sum_u 291777151759 abs_u 346850885197 max_u 3234375
+stats node 52 sum_u 98819869629 abs_u 595313121731 max_u 7093750
+stats node 53 sum_u 272888451670 abs_u 920722498226 max_u 10500000
+stats node 54 sum_u 282768788542 abs_u 948973843666 max_u 10500000
+stats node 55 sum_u 104480287728 abs_u 540578413078 max_u 7062500
+stats node 56 sum_u 107848287905 abs_u 557032433027 max_u 7062500
+stats node 57 sum_u 135027386350 abs_u 541249962221 max_u 8562500
+stats node 58 sum_u 540497581924 abs_u 2097210387168 max_u 8562500
+stats node 59 sum_u 546153421725 abs_u 2127271033307 max_u 8562500
+stats node 60 sum_u 949249679974 abs_u 1716297659602 max_u 11187500
+stats node 61 sum_u 1686587261454 abs_u 2462572564859 max_u 19750000
+stats node 62 sum_u 1712987069529 abs_u 2499701314432 max_u 19750000
+stats node 63 sum_u 850628997482 abs_u 1479731353402 max_u 12000000
+stats node 64 sum_u 863296354731 abs_u 1501884526197 max_u 12000000
+stats node 65 sum_u 791543747670 abs_u 1510247260999 max_u 14375000
+stats node 66 sum_u 3166899386463 abs_u 5898491252690 max_u 14375000
+stats node 67 sum_u 3190447902061 abs_u 5941360158874 max_u 14375000
+stats node 68 sum_u 3193412851344 abs_u 4474056455363 max_u 18375000
+stats node 69 sum_u 6111749788422 abs_u 7707506820038 max_u 24625000
+stats node 70 sum_u 6160889965424 abs_u 7767347704010 max_u 24625000
+stats node 71 sum_u 1202872970130 abs_u 2550356344803 max_u 11625000
+stats node 72 sum_u 1218851417204 abs_u 2586858050648 max_u 11625000
+stats node 73 sum_u 619070890421 abs_u 8262404534299 max_u 8625000
+stats node 74 sum_u -429796587736 abs_u 3138827465139 max_u 3265625
+stats node 75 sum_u 1011059926794 abs_u 1731481418666 max_u 5062500
+stats node 76 sum_u 1019268749803 abs_u 1744816499301 max_u 5062500
+stats node 77 sum_u -300119576842 abs_u 574595748566 max_u 2171875
+stats node 78 sum_u -239280915221 abs_u 457938315460 max_u 972656
+
+extra cycles conv=145686730 other=57507899 (overlap off; node sums: the pass total 639665855 includes the statistics output)
+per-node cycles, extra forward (overlap off):
+node 0 op 100 cycles 5832861
+node 1 op 3 cycles 7590310
+node 2 op 100 cycles 989505
+node 3 op 3 cycles 4094544
+node 4 op 100 cycles 19784
+node 5 op 3 cycles 5950972
+node 6 op 100 cycles 39949
+node 7 op 3 cycles 7524241
+node 8 op 100 cycles 505591
+node 9 op 3 cycles 2506950
+node 10 op 100 cycles 20487
+node 11 op 3 cycles 3479134
+node 12 op 100 cycles 40372
+node 13 op 3 cycles 4918410
+node 14 op 100 cycles 266465
+node 15 op 3 cycles 1463899
+node 16 op 100 cycles 20923
+node 17 op 3 cycles 1347776
+node 18 op 100 cycles 20754
+node 19 op 3 cycles 1347775
+node 20 op 3 cycles 364810
+node 21 op 100 cycles 10613
+node 22 op 3 cycles 538463
+node 23 op 3 cycles 417314
+node 24 op 0 cycles 320009
+node 25 op 3 cycles 364836
+node 26 op 100 cycles 10638
+node 27 op 3 cycles 538379
+node 28 op 3 cycles 417014
+node 29 op 0 cycles 319979
+node 30 op 3 cycles 364848
+node 31 op 100 cycles 10649
+node 32 op 3 cycles 538555
+node 33 op 3 cycles 416946
+node 34 op 0 cycles 320004
+node 35 op 3 cycles 364913
+node 36 op 100 cycles 10642
+node 37 op 3 cycles 538447
+node 38 op 3 cycles 416636
+node 39 op 0 cycles 320037
+node 40 op 3 cycles 364810
+node 41 op 100 cycles 10636
+node 42 op 3 cycles 538529
+node 43 op 3 cycles 416957
+node 44 op 0 cycles 320021
+node 45 op 3 cycles 364874
+node 46 op 100 cycles 10591
+node 47 op 3 cycles 538361
+node 48 op 3 cycles 416696
+node 49 op 0 cycles 319944
+node 50 op 23 cycles 1280861
+node 51 op 100 cycles 40463
+node 52 op 3 cycles 4918565
+node 53 op 0 cycles 1025932
+node 54 op 100 cycles 40316
+node 55 op 3 cycles 4918538
+node 56 op 100 cycles 40223
+node 57 op 3 cycles 4918218
+node 58 op 23 cycles 5067283
+node 59 op 100 cycles 79512
+node 60 op 3 cycles 10681217
+node 61 op 0 cycles 2049248
+node 62 op 100 cycles 39881
+node 63 op 3 cycles 7529302
+node 64 op 100 cycles 39911
+node 65 op 3 cycles 7529765
+node 66 op 23 cycles 10102262
+node 67 op 100 cycles 79095
+node 68 op 3 cycles 13849357
+node 69 op 0 cycles 4094135
+node 70 op 100 cycles 39644
+node 71 op 3 cycles 10121000
+node 72 op 100 cycles 57490
+node 73 op 3 cycles 15765161
+node 74 op 3 cycles 5699618
+node 75 op 200 cycles 18898535
+node 76 op 100 cycles 39785
+node 77 op 3 cycles 11610590
+node 78 op 28 cycles 4752869
+extra: second forward result frame vs main result frame: identical
+bench B2 vsetvli cycles/insn x100 213
+bench B2 vfadd.vv e32m1 cycles/insn x100 201
+bench B2 vfmul.vf e32m1 cycles/insn x100 201
+bench B2 vfmax.vv e32m1 cycles/insn x100 202
+bench B2 vle32.v e32m1 (128 B, CLP) cycles/insn x100 467
+bench B2 vse16.v e16mf2 (64 B, CLP) cycles/insn x100 2601
+bench B2 vfncvtbf16 e16mf2 cycles/insn x100 200
+bench B2 vfwcvtbf16 e16mf2 cycles/insn x100 202
+bench B2 vfadd.vv e32m8 cycles/insn x100 1602
+bench B2 vle32.v e32m8 (1 KB, CLP) cycles/insn x100 3730
+bench B2 vse16.v e16m4 (512 B, CLP) cycles/insn x100 2654
+bench B2 vfncvtbf16 e16m4 cycles/insn x100 1599
+bench B2 vrgather.vv e16m8 cycles/insn x100 12793
+bench B3 epilogue KO=32 cycles/row x100 old 5555 new 1427
+bench B3 epilogue KO=64 cycles/row x100 old 11038 new 5445
+bench B4 groups=16 steps=9 rows=384 matrix 144781 epilogue 85833 interleaved 188228 c/(a+b) x100 81 c/max(a,b) x100 130
+bench B5 matrix groups=16 steps=9 mtilen=128 345067 mtilen=32 144781
+trap self-test ok: breakpoint at mepc=0x0000000080005eae, resuming after it
+extra done
