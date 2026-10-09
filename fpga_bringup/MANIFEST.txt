@@ -1,43 +1,41 @@
 # 文件清单（机器校验用 checksums.sha256：sha256sum -c checksums.sha256）
-# source commit da51d7f24f8c8de4e63df97ee80e308b852b1574
+# source commit 0551b13b0cbd7ab93793d5b3a5f00687b9ab9501
 
-         443  BUILD_INFO.txt
-       10615  README.md
+         381  BUILD_INFO.txt
+       15990  README.md
          690  addresses.txt
-     3572024  debug/board_s2c_ame_debug.bin
-      578369  debug/board_s2c_ame_debug.diss
-     3835856  debug/board_s2c_ame_debug.elf
-        4599  debug/board_s2c_ame_debug.sym
       786432  input/test8.input.bin
-     3571576  release/board_s2c_ame.bin
-      573116  release/board_s2c_ame.diss
-     3835304  release/board_s2c_ame.elf
-        4570  release/board_s2c_ame.sym
-        1976  src/BUILD.md
-     3546688  src/build/animeganv3_bf16.agp
+     3588936  release/board_s2c_ame.bin
+      779381  release/board_s2c_ame.diss
+     3917920  release/board_s2c_ame.elf
+        6562  release/board_s2c_ame.sym
+        2125  src/BUILD.md
+     3552960  src/build/animeganv3_bf16.agp
         2364  src/docs/n550_mem_map.md
         4297  src/include/animegan/ame.h
          702  src/include/animegan/bf16.h
-        1254  src/include/animegan/board_log.h
+        1970  src/include/animegan/board_log.h
         1517  src/include/animegan/platform.h
-        8041  src/include/animegan/runtime.h
-        4093  src/scripts/build-board.sh
+        9758  src/include/animegan/runtime.h
+        4184  src/scripts/build-board.sh
          778  src/scripts/env.sh
         4599  src/src/bsp/board.h
-        1613  src/src/bsp/board.ld
+        2148  src/src/bsp/board.ld
          318  src/src/bsp/model_blob.S
-        6228  src/src/bsp/start.S
-        9253  src/src/bsp/trap.c
-        5607  src/src/conv_ame.c
+        6992  src/src/bsp/start.S
+       17198  src/src/bsp/trap.c
+        8775  src/src/conv_ame.c
         3722  src/src/conv_bf16.c
-        4870  src/src/executor.c
+        4832  src/src/executor.c
         2036  src/src/gemm_ame.c
         2061  src/src/libc_min.c
-       10221  src/src/ops_bf16.c
-       22291  src/src/ops_rvv.c
+       11802  src/src/ops_bf16.c
+       30765  src/src/ops_rvv.c
         8462  src/src/planner.c
-        5432  src/src/platform_board.c
+        5772  src/src/platform_board.c
         1738  src/src/platform_posix.c
         4925  src/src/platform_rv64_linux.c
         5667  src/src/runtime.c
-       14627  src/tests/board_backdoor.c
+       20491  src/tests/board_backdoor.c
+       13468  src/tests/board_bench.c
+        3835  src/tests/tensor_io.h

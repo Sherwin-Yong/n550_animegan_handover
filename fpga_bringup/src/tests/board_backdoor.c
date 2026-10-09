@@ -6,7 +6,8 @@
 #include <stddef.h>
 #include <string.h>
 #include "bsp/board.h"
-#ifdef AG_AME
+#include "tensor_io.h"
+#if defined(AG_AME) || defined(AG_RVV)
 #include <riscv_vector.h>
 #endif
 
@@ -31,7 +32,16 @@
  * tensor (dense NHWC) has its own slot at the fixed BOARD_OUT_TENSOR_ADDR, zeroed
  * before the run (the mailbox repeats address and size), so the host can read it
  * back and judge the error on it as well as on the result frame. All text goes to
- * the UART; per-stage and per-node lines only in debug images (BOARD_LOG). */
+ * the UART; per-stage and per-node lines only in debug images (BOARD_LOG).
+ * Release images mark progress instead: "#<stage>;" and "@<node>;" are written
+ * only while the UART transmit FIFO is empty (never waiting, outside the node
+ * timing), so after a hang the last marker shows where the program stopped.
+ * After the done status the program prints the per-node cycles of the forward
+ * and runs the extra stage (the main result stays valid whatever happens there):
+ * arena cleared, a second forward with ag_conv_overlap = 0 and the graph output
+ * at its arena offset, its per-node cycles, its result frame compared byte for
+ * byte with the main one, the micro-benchmarks of tests/board_bench.c; it ends
+ * with "extra done". */
 
 #define ST_BOOT 0xB0000001u
 #define ST_RUNNING 0xB0000003u   /* as the reference project; 0xB0000002 unused */
@@ -55,8 +65,10 @@ typedef char ag_out_tensor_slot_check[(BOARD_OUT_TENSOR_ADDR == BOARD_CLP_DDR + 
 
 extern const uint8_t ag_model_blob_start[], ag_model_blob_end[];
 void ag_board_uart_init(void);
+int ag_board_try_puts(const char *text);
 uint64_t ag_board_cycles(void);
 void ag_board_mbox_sync(void);
+void ag_board_bench(uint8_t *work, size_t bytes);
 
 #define CLP(off) ((void *)(uintptr_t)(BOARD_CLP_BASE + (off)))   /* RVV view */
 
@@ -82,6 +94,7 @@ static uint64_t *offsets;
 static uint8_t *arena;
 static uint16_t *input, *output;
 static uint32_t graph_in = UINT32_MAX, graph_out = UINT32_MAX;
+static uint64_t *node_cycles[2];      /* per node: [0] main forward, [1] extra forward */
 
 #define uputs ag_plat_puts
 #define uint_ ag_plat_put_int
@@ -93,8 +106,25 @@ static void uhex(uint64_t v) {
     uputs(buf);
 }
 
+/* progress marker "<tag><v>;" (release images), dropped while the UART is busy */
+static void mark(char tag, uint32_t v) {
+#if !BOARD_DEBUG
+    char buf[16], digits[10];
+    int n = 0, k = 0;
+    do { digits[k++] = (char)('0' + v % 10); v /= 10; } while (v);
+    buf[n++] = tag;
+    while (k) buf[n++] = digits[--k];
+    buf[n++] = ';';
+    buf[n] = 0;
+    ag_board_try_puts(buf);
+#else
+    (void)tag; (void)v;
+#endif
+}
+
 static void set_stage(uint32_t stage) {
     ag_board_stage = stage;
+    mark('#', stage);
     BOARD_LOG(uputs("stage "), uint_(stage), uputs(" cycle "), uint_((long)ag_board_cycles()), uputs("\n"));
 }
 /* The status word reaches DDR only after everything before it: the RVV result
@@ -177,9 +207,12 @@ static void post_process(uint8_t *dst, const uint16_t *src, size_t n) {
 #endif
 }
 
-/* One forward pass over the static arena; the graph output goes to its fixed slot
- * instead of its arena offset. Fills cyc_conv / cyc_other. */
-static int forward(uint64_t *cyc_conv, uint64_t *cyc_other) {
+/* One forward pass over the static arena. Pass 0 (main): the graph output goes to
+ * its fixed slot instead of its arena offset; pass 1 (extra): to its arena offset,
+ * so the main result stays, and every node's output statistics are printed
+ * ("stats node ...", tensor_io.h). Fills node_cycles[pass], cyc_conv / cyc_other;
+ * only ag_runtime_execute_node is inside the timed interval. */
+static int forward(int pass, uint64_t *cyc_conv, uint64_t *cyc_other) {
     uint32_t node_id, t;
     *cyc_conv = *cyc_other = 0;
     if (ag_runtime_init(&runtime, &model, tensor_data, tensor_size, model.tensor_count, BOARD_BACKEND) != 0) return -8;
@@ -187,24 +220,108 @@ static int forward(uint64_t *cyc_conv, uint64_t *cyc_other) {
     runtime.scratch = arena + plan.scratch_offset;
     runtime.scratch_size = (size_t)plan.scratch_bytes;
     for (t = 0; t < model.tensor_count; ++t)
-        if (t != graph_out && offsets[t] != UINT64_MAX && ag_runtime_bind(&runtime, t, arena + offsets[t], ag_tensor_bytes(model.tensors + t)) != 0) return -9;
-    if (ag_runtime_bind(&runtime, graph_out, output, BOARD_OUT_TENSOR_BYTES) != 0) return -9;
+        if ((pass || t != graph_out) && offsets[t] != UINT64_MAX && ag_runtime_bind(&runtime, t, arena + offsets[t], ag_tensor_bytes(model.tensors + t)) != 0) return -9;
+    if (!pass && ag_runtime_bind(&runtime, graph_out, output, BOARD_OUT_TENSOR_BYTES) != 0) return -9;
     for (node_id = 0; node_id < model.node_count; ++node_id) {
         const ag_node_desc *node = model.nodes + node_id;
         uint64_t c0;
         int rc;
         ag_board_node = node_id;
+        ag_board_opcode = node->opcode;
+        mark('@', node_id);
         c0 = ag_board_cycles();
         rc = ag_runtime_execute_node(&runtime, node_id);
         c0 = ag_board_cycles() - c0;
+        node_cycles[pass][node_id] = c0;
         if (node->opcode == 3) *cyc_conv += c0; else *cyc_other += c0;
         BOARD_LOG(uputs("node "), uint_(node_id), uputs(" op "), uint_(node->opcode), uputs(" cycles "), uint_((long)c0), uputs("\n"));
         if (rc != 0) {
             uputs("node "); uint_(node_id); uputs(" opcode "); uint_(node->opcode); uputs(" failed rc="); uint_(rc); uputs("\n");
             return -10;
         }
+        if (pass) {
+            const int32_t *outputs = ag_model_at(&model, node->output_offset, sizeof(int32_t));
+            ag_stats st;
+            if (!outputs) return -11;
+            ag_tensor_stats(model.tensors + outputs[0], tensor_data[outputs[0]], &st);
+            ag_print_stats(node_id, &st);
+        }
     }
     return 0;
+}
+
+static void print_node_cycles(int pass) {
+    uint32_t i;
+    uputs(pass ? "per-node cycles, extra forward (overlap off):\n" : "per-node cycles, main forward:\n");
+    for (i = 0; i < model.node_count; ++i) {
+        uputs("node "); uint_(i); uputs(" op "); uint_(model.nodes[i].opcode); uputs(" cycles "); uint_((long)node_cycles[pass][i]); uputs("\n");
+    }
+}
+
+/* number of bytes in which a and b differ (RVV: frames are CLP data); *first = index of the first or -1 */
+static size_t bytes_differ(const uint8_t *a, const uint8_t *b, size_t n, long *first) {
+    size_t count = 0, i = 0;
+    *first = -1;
+#ifdef AG_RVV
+    while (i < n) {
+        size_t vl = __riscv_vsetvl_e8m8(n - i);
+        vbool1_t ne = __riscv_vmsne_vv_u8m8_b1(__riscv_vle8_v_u8m8(a + i, vl), __riscv_vle8_v_u8m8(b + i, vl), vl);
+        long f = __riscv_vfirst_m_b1(ne, vl);
+        if (f >= 0 && *first < 0) *first = (long)i + f;
+        count += __riscv_vcpop_m_b1(ne, vl);
+        i += vl;
+    }
+#else
+    for (; i < n; ++i) if (a[i] != b[i]) { if (*first < 0) *first = (long)i; ++count; }
+#endif
+    return count;
+}
+
+/* Extra stage, after the done status: nothing here changes the main result. */
+static void extra(const uint8_t *frame_out) {
+    uint64_t conv, other, c0, frame2_off = (plan.arena_bytes + 63) & ~(uint64_t)63;
+    int rc;
+    set_stage(AG_STAGE_EXTRA);
+    if (offsets[graph_out] == UINT64_MAX) uputs("extra: graph output has no arena offset, second forward skipped\n");
+    else {
+        memset(arena, 0, (size_t)plan.arena_bytes);   /* RVV stores (libc_min) */
+#ifdef AG_AME
+        ag_conv_overlap = 0;
+#endif
+        c0 = ag_board_cycles();
+        rc = forward(1, &conv, &other);
+        c0 = ag_board_cycles() - c0;
+#ifdef AG_AME
+        ag_conv_overlap = 1;
+#endif
+        uputs("\nextra cycles conv="); uint_((long)conv); uputs(" other="); uint_((long)other);
+        uputs(" (overlap off; node sums: the pass total "); uint_((long)c0); uputs(" includes the statistics output)\n");
+        if (rc != 0) { uputs("extra: second forward failed rc="); uint_(rc); uputs("\n"); }
+        else {
+            print_node_cycles(1);
+            if (frame2_off + BOARD_FRAME_BYTES > BOARD_CLP_BYTES - BOARD_CLP_ARENA) uputs("extra: no CLP room for the second frame, comparison skipped\n");
+            else {
+                long first;
+                size_t n;
+                post_process(arena + frame2_off, (const uint16_t *)(arena + offsets[graph_out]), BOARD_FRAME_BYTES);
+                n = bytes_differ(arena + frame2_off, frame_out, BOARD_FRAME_BYTES, &first);
+                uputs("extra: second forward result frame vs main result frame: ");
+                if (!n) uputs("identical\n");
+                else { uputs("differ in "); uint_((long)n); uputs(" bytes, first at byte "); uint_(first); uputs("\n"); }
+            }
+        }
+    }
+    set_stage(AG_STAGE_BENCH);
+    ag_board_bench(arena, (size_t)plan.arena_bytes);
+    /* trap self-test: the handler recognises the flag, prints "trap self-test ok" and
+     * resumes after the 32-bit ebreak; a handler that does not prints a breakpoint
+     * trap report and halts (no "extra done") */
+    set_stage(AG_STAGE_TRAPTEST);
+    ag_trap_selftest = 1;
+    __asm__ volatile(".option push\n\t.option norvc\n\tebreak\n\t.option pop" ::: "memory");
+    if (ag_trap_selftest != 2) uputs("trap self-test: resumed without the handler\n");
+    ag_trap_selftest = 0;
+    uputs("extra done\n");
 }
 
 void ag_board_main(void) {
@@ -244,7 +361,9 @@ void ag_board_main(void) {
     tensor_data = ag_plat_alloc(model.tensor_count * sizeof(void *));
     tensor_size = ag_plat_alloc(model.tensor_count * sizeof(size_t));
     offsets = ag_plat_alloc(model.tensor_count * sizeof(uint64_t));
-    if (!tensor_data || !tensor_size || !offsets) fail(3, "alloc", 0);
+    node_cycles[0] = ag_plat_alloc(2 * model.node_count * sizeof(uint64_t));
+    node_cycles[1] = node_cycles[0] + model.node_count;
+    if (!tensor_data || !tensor_size || !offsets || !node_cycles[0]) fail(3, "alloc", 0);
     for (t = 0; t < model.tensor_count; ++t) {
         if (model.tensors[t].flags & 2) graph_in = t;
         if (model.tensors[t].flags & 4) graph_out = t;
@@ -259,6 +378,8 @@ void ag_board_main(void) {
     in_bytes = ag_tensor_bytes(model.tensors + graph_in) + AG_PLAN_TAIL;
     if (in_bytes > BOARD_CLP_OUT_TENSOR - BOARD_CLP_GRAPH_IN) fail(3, "graph input does not fit its CLP slot", (long)in_bytes);
     if (plan.arena_bytes > BOARD_CLP_BYTES - BOARD_CLP_ARENA) fail(3, "arena does not fit the CLP window", (long)plan.arena_bytes);
+    ag_board_arena_bytes = plan.arena_bytes;      /* for the trap report's CLP offsets (scratch at arena offset 0, planner.c) */
+    ag_board_scratch_bytes = plan.scratch_bytes;
     input = CLP(BOARD_CLP_GRAPH_IN);
     output = CLP(BOARD_CLP_OUT_TENSOR);
     arena = CLP(BOARD_CLP_ARENA);
@@ -277,7 +398,7 @@ void ag_board_main(void) {
     mbox->pre = ag_board_cycles() - c0;
     set_stage(AG_STAGE_FORWARD);
     c0 = ag_board_cycles();
-    rc = forward(&mbox->conv, &mbox->other);
+    rc = forward(0, &mbox->conv, &mbox->other);
     mbox->forward = ag_board_cycles() - c0;
     if (rc != 0) fail(6, "forward", rc);
     mbox->out_tensor = (uint64_t)(uintptr_t)ag_plat_ame_addr(tensor_data[graph_out]);   /* DDR view */
@@ -292,5 +413,7 @@ void ag_board_main(void) {
     uputs(" conv="); uint_((long)mbox->conv); uputs(" other="); uint_((long)mbox->other);
     uputs(" post="); uint_((long)mbox->post); uputs(" cpu_hz="); uint_(BOARD_CPU_HZ); uputs("\ndone\n");
     mb_status(ST_DONE);
+    print_node_cycles(0);
+    extra(frame_out);
     for (;;) __asm__ volatile("wfi");
 }

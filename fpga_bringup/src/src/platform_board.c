@@ -49,6 +49,14 @@ void ag_board_putc(void *ctx, int c) {
     UART_WR(UART_THR, c & 0xFF);
 }
 
+/* Progress marker: writes `text` (a few bytes, within the transmit FIFO) only when
+ * the transmit FIFO is empty (LSR.THRE), never waiting; returns 1 if written. */
+int ag_board_try_puts(const char *text) {
+    if (!(UART_RD(UART_LSR) & UART_LSR_THRE)) return 0;
+    for (; *text; ++text) UART_WR(UART_THR, *text & 0xFF);
+    return 1;
+}
+
 /* ---- console ---- */
 void ag_plat_puts(const char *text) {
     for (; *text; ++text) {
